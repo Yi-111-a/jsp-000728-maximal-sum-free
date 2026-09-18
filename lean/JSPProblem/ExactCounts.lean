@@ -17,6 +17,23 @@ The verified values are:
 | 4   | 4                   | `{1,3}`, `{1,4}`, `{2,3}`, `{3,4}`                |
 | 5   | 5                   | `{1,4}`, `{2,3}`, `{2,5}`, `{1,3,5}`, `{3,4,5}`   |
 
+For larger `n` the explicit sets are omitted for brevity; the verified
+counts are:
+
+| `n` | `maxSumFreeCount n` |
+|-----|---------------------|
+| 6   | 6                   |
+| 7   | 8                   |
+| 8   | 13                  |
+| 9   | 17                  |
+| 10  | 23                  |
+| 11  | 29                  |
+| 12  | 37                  |
+
+`n = 12` is the largest value verified by kernel `decide` (it needs a
+raised `maxHeartbeats`; evaluation takes ~2.5 minutes).  These values
+agree with the OEIS/folklore sequence of maximal sum-free subset counts.
+
 Note: `{2,3}` is maximal in `{1,…,4}` (inserting `1` gives `1+1=2 ∈`,
 inserting `4` gives `2+2=4 ∈`), so `f(4) = 4`.
 -/
@@ -34,5 +51,21 @@ theorem count_three : maxSumFreeCount 3 = 2 := by decide
 theorem count_four : maxSumFreeCount 4 = 4 := by decide
 
 theorem count_five : maxSumFreeCount 5 = 5 := by decide
+
+theorem count_six : maxSumFreeCount 6 = 6 := by decide
+
+theorem count_seven : maxSumFreeCount 7 = 8 := by decide
+
+theorem count_eight : maxSumFreeCount 8 = 13 := by decide
+
+theorem count_nine : maxSumFreeCount 9 = 17 := by decide
+
+theorem count_ten : maxSumFreeCount 10 = 23 := by decide
+
+set_option maxHeartbeats 1000000 in
+theorem count_eleven : maxSumFreeCount 11 = 29 := by decide
+
+set_option maxHeartbeats 3000000 in
+theorem count_twelve : maxSumFreeCount 12 = 37 := by decide
 
 end JSP000728

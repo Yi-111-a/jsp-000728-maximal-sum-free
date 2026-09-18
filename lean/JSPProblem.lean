@@ -6,3 +6,8 @@ import JSPProblem.PairFamily
 import JSPProblem.SingleFamily
 import JSPProblem.ExactCounts
 import JSPProblem.Counting
+import JSPProblem.Extend
+import JSPProblem.BlstFamily
+import JSPProblem.BlstCounting
+import JSPProblem.UpperBound
+import JSPProblem.Asymptotic
