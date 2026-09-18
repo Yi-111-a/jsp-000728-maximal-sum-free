@@ -1,0 +1,25 @@
+# Stub for a future Justin Sun Prize Lean claim (do NOT open claim issues yet).
+jsp_id: JSP-000728
+catalog_url: https://github.com/TheJustinSunPrize/awards/blob/main/problems/catalog-0701-0800.md#JSP-000728
+status: wip_partial
+prize_ready: false
+github_owner: Yi-111-a
+lean_repository: https://github.com/Yi-111-a/jsp-000728-maximal-sum-free
+branch: main
+commit_sha: ""   # fill with full 40-char SHA when prize_ready
+headline_theorems:
+  - maxSumFreeCount_sharp_asymptotic
+roles:
+  formalization_operators:
+    - Yi-111-a
+  mathematical_solvers_literature:
+    - "Balogh–Liu–Sharifzadeh–Treglown (BLST15/18)"
+    - "Łuczak–Schoen (LuSc01)"
+attribution_basis: |
+  Formalization work under GitHub account Yi-111-a. Mathematical solution
+  credits remain with the published literature (catalog Publication details).
+  This stub does not claim the prize.
+build:
+  toolchain_file: lean/lean-toolchain
+  command: lake build
+  notes: See repository README for elan/lake setup.

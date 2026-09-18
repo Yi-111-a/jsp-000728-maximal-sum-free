@@ -1,0 +1,9 @@
+{
+  "jsp_id": "JSP-000728",
+  "catalog_url": "https://github.com/TheJustinSunPrize/awards/blob/main/problems/catalog-0701-0800.md#JSP-000728",
+  "original_question_en": "How many inclusion-maximal sum-free subsets does a finite integer interval have?",
+  "required_theorems": [
+    "maxSumFreeCount_sharp_asymptotic"
+  ],
+  "notes": "Target is BLST18 sharp asymptotic f(n)=2^{(1/4+o(1))n}. Lower bounds and small-n exact tables are milestones only."
+}
