@@ -203,6 +203,86 @@ theorem jsp_000728_second_min_bound {n : ℕ} {m s : ℤ} (hm : 1 ≤ m) :
         (((n : ℤ) - s).toNat + (min m ((n : ℤ) - s)).toNat) :=
   secondMinClass_card_le_goldenRatio hm
 
+/-- Rail-pair engine: a matched pair `{r, r+m}` of mod-`s` residue rails
+(`r ≤ s−m`, no wrap) carries at most `(ladSets L)` double-shift-free subsets —
+per-vertex rate `√(1+√2) ≈ 1.5538 < φ` with **no** constant slack. -/
+theorem jsp_000728_pair_rail_ladder {n : ℕ} {m s r : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) (hr : 1 ≤ r) (hrsm : r ≤ s - m) :
+    ((cls n s r ∪ cls n s (r + m)).powerset.filter (shiftFree2 m s)).card ≤
+      4 * (ladSets ((((n : ℤ) - r) / s).toNat + 1)).card :=
+  card_powerset_filter_shiftFree2_pair_cls_le hm hms hr hrsm
+
+/-- Explicit rail pairing cover: `Icc (s+1) n` is covered by the `s−m`
+rail pairs `{r, r+m}` (`r ≤ s−m`) plus the `2m−s` leftover rails
+(`Icc (s−m+1) m`, empty for `s ≥ 2m`). -/
+theorem jsp_000728_rail_pair_cover {n : ℕ} {m s : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) :
+    Finset.Icc (s + 1) (n : ℤ) ⊆
+      (Finset.Icc 1 (s - m)).biUnion
+          (fun r => cls n s r ∪ cls n s (r + m)) ∪
+        (Finset.Icc (s - m + 1) m).biUnion (cls n s) :=
+  Icc_subset_biUnion_pairCls hm hms
+
+/-- Assembled rail-pair product bound (conditional on the per-pair ladder
+bound `hpair`, discharged by `card_powerset_filter_shiftFree2_pair_cls_le`). -/
+theorem jsp_000728_shiftFree2_le_pairProd {n : ℕ} {m s : ℤ}
+    (hm : 1 ≤ m) (hms : m < s) :
+    ((Finset.Icc (s + 1) (n : ℤ)).powerset.filter (shiftFree2 m s)).card ≤
+      (∏ r ∈ Finset.Icc 1 (s - m),
+          4 * (ladSets ((((n : ℤ) - r) / s).toNat + 1)).card) *
+        ∏ ρ ∈ Finset.Icc (s - m + 1) m,
+          Nat.fib ((((n : ℤ) - ρ) / s).toNat + 2) :=
+  card_powerset_filter_shiftFree2_Icc_le_pairProd hm hms fun r hr =>
+    card_powerset_filter_shiftFree2_pair_cls_le hm hms
+      (Finset.mem_Icc.mp hr).1 (Finset.mem_Icc.mp hr).2
+
+/-- 3-rail cyclic strip (`s = 3m` orbits): the triangle-column transfer gives
+`T_L·2^L ≤ 4·7^L`, per-vertex rate `(7/2)^{1/3} ≈ 1.518`. -/
+theorem jsp_000728_tricyl_bound (L : ℕ) :
+    (triSets L).card * 2 ^ L ≤ 4 * 7 ^ L :=
+  triSets_card_mul_two_pow_le L
+
+/-- Column-block engines: a single `s`-column carries at most
+`3^{s−m}·2^{(2m−s)⁺}` and a double `2s`-column at most
+`7^{s−m}·3^{(2m−s)⁺}` double-shift-free subsets. -/
+theorem jsp_000728_col_bounds {m s a : ℤ} (hm : 1 ≤ m) (hms : m < s) :
+    ((Finset.Icc a (a + s - 1)).powerset.filter (shiftFree2 m s)).card ≤
+        3 ^ (s - m).toNat * 2 ^ (2 * m - s).toNat ∧
+      ((Finset.Icc a (a + 2 * s - 1)).powerset.filter
+          (shiftFree2 m s)).card ≤
+        7 ^ (s - m).toNat * 3 ^ (2 * m - s).toNat :=
+  ⟨card_powerset_filter_shiftFree2_col_le (n := 0) hm hms,
+   card_powerset_filter_shiftFree2_colPair_le (n := 0) hm hms⟩
+
+/-- Large-`s` regime (`n ≤ 2s`, vacuous `s`-shift): the `m`-matching bound
+gives `(secondMinClass n m s).card ≤ 3^{n−s}` — sub-`φ` for `s ≥ n/2`. -/
+theorem jsp_000728_second_min_large_s {n : ℕ} {m s : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) (hns : (n : ℤ) ≤ 2 * s) :
+    (secondMinClass n m s).card ≤ 3 ^ ((n : ℤ) - s).toNat :=
+  secondMinClass_card_le_of_half_le hm hms hns
+
+/-- Cameron–Erdős/Wolfovitz determination: a maximal sum-free `M` with
+`min M = m` is determined by its trace `M ∩ [1, n−m]` (elements of `(n−m, n]`
+are either sums of two smaller members — excluded — or adjoinable — included).
+Hence `minClass n m ≤ 2^{n−2m+1}`: the whole diagonal region `s ≈ m` collapses. -/
+theorem jsp_000728_minClass_determined {n : ℕ} {m : ℤ} :
+    (minClass n m).card ≤ 2 ^ ((n : ℤ) - 2 * m + 1).toNat :=
+  minClass_card_le_two_pow_determined
+
+/-- Sharper determined bound: the trace minus `m` is `m`-shift-free on
+`Icc (m+1) (n−m)`, giving `minClass n m ≤ ∏_{r∈Icc 1 m} fib(L_r+2)`
+— effectively `φ^{n−m}` for `m ≥ 1`. -/
+theorem jsp_000728_minClass_prod_fib {n : ℕ} {m : ℤ} :
+    (minClass n m).card ≤
+      ∏ r ∈ Finset.Icc 1 m, Nat.fib ((((n : ℤ) - m - r) / m).toNat + 2) :=
+  minClass_card_le_prod_fib
+
+/-- Sharp ladder rate: `a(L) ≤ (5/4)·(1+√2)^L` (exact Perron root of
+`a(L+2) = 2a(L+1) + a(L)`), per-vertex `√(1+√2) ≈ 1.5538`. -/
+theorem jsp_000728_ladder_pell_bound (L : ℕ) :
+    ((ladSets L).card : ℝ) ≤ 5 / 4 * (1 + Real.sqrt 2) ^ L :=
+  ladSets_card_le_pell_pow L
+
 /-- Exact counts for the smallest intervals. -/
 theorem jsp_000728_exact :
     maxSumFreeCount 0 = 1 ∧ maxSumFreeCount 1 = 1 ∧ maxSumFreeCount 2 = 2 ∧

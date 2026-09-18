@@ -38,3 +38,10 @@ import JSPProblem.MaxCover
 import JSPProblem.BitmaskCount
 import JSPProblem.Ladder
 import JSPProblem.TwoMinBound
+import JSPProblem.PairRails
+import JSPProblem.RailPairing
+import JSPProblem.TriCyl
+import JSPProblem.ColPair
+import JSPProblem.LargeS
+import JSPProblem.DeterminedMinClass
+import JSPProblem.LadderSharp
