@@ -11,3 +11,9 @@ import JSPProblem.BlstFamily
 import JSPProblem.BlstCounting
 import JSPProblem.UpperBound
 import JSPProblem.Asymptotic
+import JSPProblem.SumFreeCount
+import JSPProblem.Obstruction
+import JSPProblem.Monotone
+import JSPProblem.Containers
+import JSPProblem.PairBound
+import JSPProblem.AsymptoticReduction
