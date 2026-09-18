@@ -32,3 +32,9 @@ import JSPProblem.MaxDecomp
 import JSPProblem.EvenOdd
 import JSPProblem.NoConsec
 import JSPProblem.FibBound
+import JSPProblem.TwoMin
+import JSPProblem.SingleEvenClass
+import JSPProblem.MaxCover
+import JSPProblem.BitmaskCount
+import JSPProblem.Ladder
+import JSPProblem.TwoMinBound

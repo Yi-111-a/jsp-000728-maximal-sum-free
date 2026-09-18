@@ -153,6 +153,56 @@ theorem jsp_000728_conditional_half (hCE : ContainerExistence)
     (hSR : SchurRemoval) : EventualRatioUpper (1 / 2) :=
   eventualRatioUpper_half_of_removal_containers hCE hSR
 
+/-- Second-minimum refinement: the class with minimum `m` is the disjoint
+union over `s` of the classes with second-least element `s`, each member
+satisfying the double translate constraint (`shiftFree2`). -/
+theorem jsp_000728_second_min_decomp {n : ℕ} {m : ℤ} :
+    (minClass n m).card =
+      ∑ s ∈ Finset.Icc m (n : ℤ), (secondMinClass n m s).card :=
+  minClass_card_eq_sum_secondMinClass
+
+/-- The `s = 2m` second-minimum class is empty: `m, 2m ∈ M` would be a
+Schur triple inside a sum-free set. -/
+theorem jsp_000728_second_min_two_mul (n : ℕ) (m : ℤ) :
+    secondMinClass n m (2 * m) = ∅ :=
+  secondMinClass_two_mul n m
+
+/-- Maximal sets whose even part is the singleton `{e}` have at most
+`φ^n` members (odd part is `e`-shift-free). -/
+theorem jsp_000728_single_even_bound {n : ℕ} {e : ℤ} (hpar : Even e)
+    (he : 2 ≤ e) (hen : e ≤ (n : ℤ)) :
+    ((singleEvenClass n e).card : ℝ) ≤ Real.goldenRatio ^ n :=
+  card_singleEvenClass_le_goldenRatio hpar he hen
+
+/-- Covering at the top: for every maximal sum-free `M ⊆ {1,…,n}`,
+either `n ∈ M` or `n` is a sum of two elements of `M`; in particular
+`2·max M ≥ n`. -/
+theorem jsp_000728_max_cover {n : ℕ} (hn : 1 ≤ n) {M : Finset ℤ}
+    (hM : M ∈ maxSumFreeSets n) :
+    (n : ℤ) ∈ M ∨ ∃ a ∈ M, ∃ b ∈ M, a + b = (n : ℤ) :=
+  maxSumFree_covers_top hn hM
+
+/-- Ladder independent-set count: the `2×L` ladder has `a(L)` independent
+sets with `a(L+2) = 2·a(L+1) + a(L)` (Pell) and `a(L)·2^{L-1} ≤ 3·5^{L-1}`
+(per-vertex rate `√(5/2) ≈ 1.5811 < φ`).  This is the counting engine for
+the distance-`{m,s}` cylinder classes in the second-minimum refinement. -/
+theorem jsp_000728_ladder_rec (L : ℕ) :
+    (ladSets (L + 2)).card =
+      2 * (ladSets (L + 1)).card + (ladSets L).card :=
+  ladSets_card_add_two L
+
+theorem jsp_000728_ladder_bound {L : ℕ} (hL : 1 ≤ L) :
+    (ladSets L).card * 2 ^ (L - 1) ≤ 3 * 5 ^ (L - 1) :=
+  ladSets_card_mul_two_pow_le hL
+
+/-- Uniform second-minimum class bound: every `(m,s)` class has at most
+`φ^{(n-s) + min(m, n-s)}` members. -/
+theorem jsp_000728_second_min_bound {n : ℕ} {m s : ℤ} (hm : 1 ≤ m) :
+    ((secondMinClass n m s).card : ℝ) ≤
+      Real.goldenRatio ^
+        (((n : ℤ) - s).toNat + (min m ((n : ℤ) - s)).toNat) :=
+  secondMinClass_card_le_goldenRatio hm
+
 /-- Exact counts for the smallest intervals. -/
 theorem jsp_000728_exact :
     maxSumFreeCount 0 = 1 ∧ maxSumFreeCount 1 = 1 ∧ maxSumFreeCount 2 = 2 ∧
@@ -161,3 +211,11 @@ theorem jsp_000728_exact :
           maxSumFreeCount 8 = 13 :=
   ⟨count_zero, count_one, count_two, count_three, count_four, count_five,
     count_six, count_seven, count_eight⟩
+
+/-- Exact counts extended to `n = 13, 14, 15` via the bitmask bridge
+(`maxSumFreeCount_eq_maskCount`): `f(13) = 51`, `f(14) = 66`,
+`f(15) = 86`, all kernel-verified. -/
+theorem jsp_000728_exact_large :
+    maxSumFreeCount 13 = 51 ∧ maxSumFreeCount 14 = 66 ∧
+      maxSumFreeCount 15 = 86 :=
+  ⟨count_thirteen, count_fourteen, count_fifteen⟩
