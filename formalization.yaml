@@ -6,7 +6,7 @@ prize_ready: false
 github_owner: Yi-111-a
 lean_repository: https://github.com/Yi-111-a/jsp-000728-maximal-sum-free
 branch: main
-commit_sha: ""   # fill with full 40-char SHA when prize_ready
+commit_sha: "f9aa6181ea576db2dc1e9a1aae5ed08e8a33a769"  # WIP tip; not prize_ready
 headline_theorems:
   - maxSumFreeCount_sharp_asymptotic
 roles:
