@@ -45,3 +45,16 @@ import JSPProblem.ColPair
 import JSPProblem.LargeS
 import JSPProblem.DeterminedMinClass
 import JSPProblem.LadderSharp
+import JSPProblem.OrbitDecomp
+import JSPProblem.StairLadder
+import JSPProblem.QuadCyl
+import JSPProblem.TriBridge
+import JSPProblem.EventualUpper
+import JSPProblem.StairMatch
+import JSPProblem.NearDiagBound
+import JSPProblem.LinkGraph
+import JSPProblem.PentCyl
+import JSPProblem.OrbitStripCount
+import JSPProblem.StairMatchSharp
+import JSPProblem.StairMatchReal
+import JSPProblem.CellAssembly

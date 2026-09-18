@@ -299,3 +299,206 @@ theorem jsp_000728_exact_large :
     maxSumFreeCount 13 = 51 ∧ maxSumFreeCount 14 = 66 ∧
       maxSumFreeCount 15 = 86 :=
   ⟨count_thirteen, count_fourteen, count_fifteen⟩
+
+/-- **Orbit decomposition** (`ZMod s` orbits of `+m`, `gcd(m,s)` orbits of
+`s/gcd(m,s)` rails each): `Icc (s+1) n` is covered by the orbit rail-unions. -/
+theorem jsp_000728_orbit_cover {n : ℕ} {m s : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) :
+    Finset.Icc (s + 1) (n : ℤ) ⊆
+      ((Finset.Icc 1 s).image (orbit m s)).biUnion
+        (fun O => O.biUnion (cls n s)) :=
+  Icc_subset_biUnion_orbitCls hm hms
+
+/-- Per-orbit strip bound: double-shift-free subsets of one orbit's rail
+union inject into `orbitStrips` (wrap edge dropped — a superset bound). -/
+theorem jsp_000728_orbit_strip {n : ℕ} {m s r : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) :
+    (((orbit m s r).biUnion (cls n s)).powerset.filter
+        (shiftFree2 m s)).card ≤
+      (orbitStrips (orbitTwist m s r) (orbitLen m s)
+        (((n : ℤ) - 1) / s).toNat).card :=
+  card_powerset_filter_shiftFree2_orbitCls_le hm hms
+
+/-- **Staircase ladder** (ascending rungs `(f,j)→(t,j+1)` only): the count
+satisfies `a(L+3) = a(L+2) + 3·a(L+1) + a(L)` (Perron root `≈ 2.4115`,
+per-vertex `≈ 1.5529`). -/
+theorem jsp_000728_stair_rec (L : ℕ) :
+    (stairSets (L + 3)).card =
+      (stairSets (L + 2)).card + 3 * (stairSets (L + 1)).card +
+        (stairSets L).card :=
+  stairSets_card_add_three L
+
+theorem jsp_000728_stair_bound {L : ℕ} (hL : 1 ≤ L) :
+    (stairSets L).card * 2 ^ (L - 1) ≤ 4 * 5 ^ (L - 1) :=
+  stairSets_card_mul_two_pow_le hL
+
+/-- **Mod-`m` staircase pairing** (regime `s ≤ 3m/2`): a matched rail pair
+`{r, r+(s−m)}` carries at most `stairSets L` double-shift-free subsets —
+the `m`-shift is vertical, the `s`-shift an ascending rung. -/
+theorem jsp_000728_modm_stair_pair {n : ℕ} {m s r : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) (hsm : 2 * s ≤ 3 * m) (hr : 1 ≤ r) (hrsm : r ≤ s - m) :
+    ((cls n m r ∪ cls n m (r + s - m)).powerset.filter
+        (shiftFree2 m s)).card ≤
+      (stairSets (((n : ℤ) - r) / m).toNat).card :=
+  card_powerset_filter_shiftFree2_modm_pair_cls_le hm hms hsm hr hrsm
+
+/-- The mod-`m` staircase pairing cover: `Icc (m+1) n` is covered by the
+`s−m` pairs `{r, r+(s−m)}` plus `3m−2s` leftover rails (empty at `s=3m/2`). -/
+theorem jsp_000728_modm_cover {n : ℕ} {m s : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) (hsm : 2 * s ≤ 3 * m) :
+    Finset.Icc (m + 1) (n : ℤ) ⊆
+      (Finset.Icc 1 (s - m)).biUnion
+          (fun r => cls n m r ∪ cls n m (r + s - m)) ∪
+        (Finset.Icc (2 * (s - m) + 1) m).biUnion (cls n m) :=
+  Icc_subset_biUnion_modm_pairCls hm hms hsm
+
+/-- **4-rail cyclic strip** (`c = 4` orbits): `T(L)·2^L ≤ 2·11^L`,
+per-vertex rate `(11/2)^{1/4} ≈ 1.5317 < √(1+√2)`. -/
+theorem jsp_000728_quad_bound (L : ℕ) :
+    (quadSets L).card * 2 ^ L ≤ 2 * 11 ^ L :=
+  quadSets_card_mul_two_pow_le L
+
+/-- **Wrap-strip** (the honest `c = 3` orbit model: cyclic `+m` edges
+`(0,j)→(1,j)→(2,j)→(0,j+1)`): `W(L)·2^L ≤ 27·7^L`. -/
+theorem jsp_000728_wsets_bound (L : ℕ) :
+    (wSets L).card * 2 ^ L ≤ 27 * 7 ^ L :=
+  wSets_card_mul_two_pow_le L
+
+/-- **`s = 3m` bridge**: double-shift-free subsets of one `{r, r+m, r+2m}`
+orbit union inject into `wSets` — the `s = 3m` second-minimum cell is
+bounded by wrap-strips. -/
+theorem jsp_000728_tri_bridge {n : ℕ} {m r : ℤ} (hm : 1 ≤ m) (hr : 1 ≤ r)
+    (hrm : r ≤ m) :
+    ((cls n (3 * m) r ∪ cls n (3 * m) (r + m) ∪
+        cls n (3 * m) (r + 2 * m)).powerset.filter
+          (shiftFree2 m (3 * m))).card ≤
+      (wSets (((n : ℤ) - r) / (3 * m)).toNat).card :=
+  card_powerset_filter_shiftFree2_tri_cls_le hm hr hrm
+
+/-- Assembled `s = 3m` product bound. -/
+theorem jsp_000728_tri_prod {n : ℕ} {m : ℤ} (hm : 1 ≤ m) :
+    ((Finset.Icc (3 * m + 1) (n : ℤ)).powerset.filter
+        (shiftFree2 m (3 * m))).card *
+        2 ^ (∑ r ∈ Finset.Icc 1 m, (((n : ℤ) - r) / (3 * m)).toNat) ≤
+      27 ^ m.toNat * 7 ^ ((n : ℤ) - 3 * m).toNat :=
+  card_powerset_filter_shiftFree2_triIcc_mul_le hm
+
+/-- **Frontier reduction**: the `m ≥ n/4` min-classes contribute at most
+`n·2^{⌊n/2⌋+1}` (determined bound summed geometrically), so
+`f(n) ≤ smallMinSum n + n·2^{n/2+1}` — only the `m < n/4` frontier remains. -/
+theorem jsp_000728_small_min {n : ℕ} (hn : 1 ≤ n) :
+    maxSumFreeCount n ≤ smallMinSum n + n * 2 ^ (n / 2 + 1) :=
+  maxSumFreeCount_le_smallMin_add hn
+
+/-- Conditional closing via the small-minimum frontier: a `2^{(c+o(1))n}`
+bound on `smallMinSum` yields `EventualRatioUpper (max c (1/2))`. -/
+theorem jsp_000728_conditional_smallmin {c : ℝ} (h : SmallMinBound c) :
+    EventualRatioUpper (max c (1 / 2)) :=
+  eventualRatioUpper_of_smallMinBound h
+
+/-- **Block-parity staircase matching** (unified for all `k = s−m ∈ [1,m)`):
+bases `{r ≤ m−k : (r−1)/k even}` paired with `{r+k}` cover `Icc (m+1) n`
+up to `≤ k` leftover rails — subsumes both the near-diagonal (`k ≪ m`) and
+the `(3m/2, 2m)` overlap regimes. -/
+theorem jsp_000728_stairmatch_cover {n : ℕ} {m k : ℤ} (hm : 1 ≤ m)
+    (hk : 1 ≤ k) :
+    Finset.Icc (m + 1) (n : ℤ) ⊆
+      (stairBases m k).biUnion
+          (fun r => cls n m r ∪ cls n m (r + k)) ∪
+        (stairLeftover m k).biUnion (cls n m) :=
+  Icc_subset_biUnion_stairMatchCls hm hk
+
+/-- **Near-diagonal cell bound**: the `s = m+k` second-minimum class is
+bounded by the staircase-matching closed form `4^{m−k}·5^{n−m}·2^k`
+(per-vertex `≈ 2^{0.66}` for `k ≪ m` — the former `φ`-frontier cell). -/
+theorem jsp_000728_stairmatch_cell {n : ℕ} {m k : ℤ} (hm : 1 ≤ m)
+    (hk : 1 ≤ k) (hkm : k < m) :
+    (secondMinClass n m (m + k)).card ≤
+      4 ^ (m - k).toNat * (5 ^ ((n : ℤ) - m).toNat * 2 ^ k.toNat) :=
+  secondMinClass_card_le_stairProd_conditional (s := m + k) (by omega)
+    (card_powerset_filter_shiftFree2_Icc_le_stairMatchClosed hm hk hkm)
+
+/-- **Piecewise cell bound** (`cellBoundReal`): `s = m` → `1`, `s = 2m` → `0`,
+`n ≤ 2s` → `3^{n−s}`, otherwise the vacuous `φ`-bound — an unconditional
+per-cell `ℝ` bound for every second-minimum class. -/
+theorem jsp_000728_cell_bound {n : ℕ} {m s : ℤ} (hm : 1 ≤ m) (hms : m ≤ s) :
+    ((secondMinClass n m s).card : ℝ) ≤ cellBoundReal n m s :=
+  secondMinClass_card_le_cellBoundReal hm hms
+
+/-- **Link-graph characterization** (Wolfovitz route): for fingerprint
+`S ⊆ Icc 1 K` and `t` above `K`, `S ∪ t` is sum-free iff `S`, `t` are
+sum-free and `t` is link-`S`-independent — maximal sum-free sets are counted
+by maximal independent sets of link graphs. -/
+theorem jsp_000728_link_union {S t : Finset ℤ} {K : ℤ} (hK : 0 ≤ K)
+    (hS : S ⊆ Finset.Icc 1 K) (htK : ∀ x ∈ t, K < x) :
+    IsSumFree (S ∪ t) ↔
+      IsSumFree S ∧ IsSumFree t ∧ linkIndepSet S t :=
+  isSumFree_union_iff_linkIndepSet hK hS htK
+
+/-- Every min-class is counted by fingerprints: `minClass n m` is at most
+the sum over `S ⊆ Icc 1 K` of the link-`S`-independent subsets of
+`Icc (K+1) n`. -/
+theorem jsp_000728_minclass_linksets {n : ℕ} {m K : ℤ} :
+    (minClass n m).card ≤
+      ∑ S ∈ (Finset.Icc 1 K).powerset,
+        (linkSets S (Finset.Icc (K + 1) (n : ℤ))).card :=
+  minClass_card_le_sum_linkSets
+
+/-- **5-rail cyclic strip** (`c = 5` orbits): `P(L)·4^L ≤ 2·31^L`,
+per-vertex rate `(31/4)^{1/5} ≈ 1.5049`. -/
+theorem jsp_000728_pent_bound (L : ℕ) :
+    (pentSets L).card * 4 ^ L ≤ 2 * 31 ^ L :=
+  pentSets_card_mul_four_pow_le L
+
+/-- **Universal orbit bound** (discharges the orbit product): every orbit
+strip counts at most `ladSets^{c/2}·fib^{c%2}` subsets (column-pairing +
+shear map flattening the twist), so the whole `Icc (s+1) n` double-shift-free
+count is bounded by the `gcd(m,s)`-fold power — per-vertex rate
+`√(1+√2) ≈ 1.5538` uniformly in the orbit size. -/
+theorem jsp_000728_orbit_closed {n : ℕ} {m s : ℤ} (hm : 1 ≤ m)
+    (hms : m < s) :
+    ((Finset.Icc (s + 1) (n : ℤ)).powerset.filter (shiftFree2 m s)).card ≤
+      ((ladSets ((((n : ℤ) - 1) / s).toNat + 1)).card ^ (orbitLen m s / 2) *
+          Nat.fib ((((n : ℤ) - 1) / s).toNat + 2) ^ (orbitLen m s % 2)) ^
+        Int.gcd s m :=
+  card_powerset_filter_shiftFree2_Icc_le_orbitPow hm hms
+
+/-- **Sharp staircase-matching rate**: the `5/2`-rate multiplied bound —
+`card·2^{Σ_B(L−1)} ≤ 4^{|B|}·5^{Σ_B(L−1)}·2^{Σ_Λ(L+1)}`, i.e. per-vertex
+`√(5/2) ≈ 1.581` on the matched rails plus `2`-per-leftover-rail-level.
+This is the frontier-quality near-diagonal bound (`Σ_B L ≈ (n−m)/2`). -/
+theorem jsp_000728_stairmatch_rate {n : ℕ} {m k : ℤ} (hm : 1 ≤ m)
+    (hk : 1 ≤ k) (hkm : k < m) :
+    ((Finset.Icc (m + 1) (n : ℤ)).powerset.filter
+        (shiftFree2 m (m + k))).card *
+        2 ^ (∑ r ∈ stairBases m k,
+          ((((n : ℤ) - r) / m).toNat - 1)) ≤
+      4 ^ (stairBases m k).card *
+        5 ^ (∑ r ∈ stairBases m k,
+          ((((n : ℤ) - r) / m).toNat - 1)) *
+        2 ^ (∑ ρ ∈ stairLeftover m k,
+          ((((n : ℤ) - ρ) / m).toNat + 1)) :=
+  card_powerset_filter_shiftFree2_Icc_mul_two_pow_le_stairMatch hm hk hkm
+
+/-- `ℝ`-form of the near-diagonal class bound. -/
+theorem jsp_000728_stairmatch_real {n : ℕ} {m k : ℤ} (hm : 1 ≤ m)
+    (hk : 1 ≤ k) (hkm : k < m) :
+    ((secondMinClass n m (m + k)).card : ℝ) ≤
+      (4 : ℝ) ^ (m - k).toNat *
+        Real.goldenRatio ^ (((n : ℤ) - m).toNat + m.toNat) :=
+  secondMinClass_card_le_stairMatchSharp_real hm hk hkm
+
+/-- Sharp `ℝ`-rate for the near-diagonal class: `√(5/2)·2^{k/m}` per vertex. -/
+theorem jsp_000728_staircell_rate {n : ℕ} {m k : ℤ} (hm : 1 ≤ m)
+    (hk : 1 ≤ k) (hkm : k < m) (hmn : m ≤ (n : ℤ)) :
+    ((secondMinClass n m (m + k)).card : ℝ) ≤
+      (4 : ℝ) ^ (m - k).toNat * (2 : ℝ) ^ k.toNat *
+        stairCellRate m k ^ n :=
+  secondMinClass_card_le_stairCellRate_pow hm hk hkm hmn
+
+/-- **Frontier milestone:** the limsup exponent is at most `347/500 = 0.694`,
+strictly below `log₂ φ ≈ 0.6942`.  Unconditional — assembled from the
+five-regime per-cell bound (`secondMinClass_card_le_cell`). -/
+theorem jsp_000728_eventual_upper_sharp :
+    EventualRatioUpper (max (347 / 500 : ℝ) (1 / 2)) :=
+  eventualRatioUpper_347_500
