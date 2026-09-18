@@ -17,3 +17,8 @@ import JSPProblem.Monotone
 import JSPProblem.Containers
 import JSPProblem.PairBound
 import JSPProblem.AsymptoticReduction
+import JSPProblem.MinElement
+import JSPProblem.MaxCard
+import JSPProblem.Extremal
+import JSPProblem.SharpThreshold
+import JSPProblem.ContainerReduction

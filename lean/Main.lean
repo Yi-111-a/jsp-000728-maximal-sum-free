@@ -28,11 +28,25 @@ This development formalizes:
   `IsGoodContainerFamily`) with the elementary counting consequences;
 * the asymptotic statement `SharpAsymptotic` (`log₂ f(n)/n → 1/4`) as a
   formal `Prop`, proved equivalent to the single missing hypothesis
-  `EventualRatioUpper (1/4)` (`sharpAsymptotic_iff_eventualRatioUpper`).
+  `EventualRatioUpper (1/4)` (`sharpAsymptotic_iff_eventualRatioUpper`);
+* structural lemmas: the min-element translate bound
+  `2·|s| ≤ n + min s` (`two_mul_card_le_of_min`), the maximum cardinality
+  `|s| ≤ ⌈n/2⌉` of a sum-free set (`card_le_of_isSumFree`, attained by the
+  odds), and uniqueness of the odds and the upper half as maximal sum-free
+  sets inside their ambient family (`eq_odds_of_isMaxSumFree_subset`,
+  `eq_upperHalf_of_isMaxSumFree_subset`);
+* sharpness of the `1/4` threshold: `EventualRatioUpper c` is false for
+  every `c < 1/4` (`not_eventualRatioUpper_of_lt_quarter`), and
+  `SharpAsymptotic ↔ ∀ c ≥ 1/4, EventualRatioUpper c`;
+* the conditional closing theorem: the BLST18 container hypothesis
+  `MaxContainerBound` (exponentially few containers, each housing
+  `≤ 2^{(1/4+o(1))n}` maximal sum-free sets) implies `SharpAsymptotic`
+  (`sharpAsymptotic_of_maxContainerBound`).
 
-The remaining gap to the full BLST18 theorem is exactly
-`EventualRatioUpper (1/4)`, i.e. the upper bound `f(n) ≤ 2^{(1/4+o(1))n}`,
-which relies on Green's container lemma — not yet formalized here.
+The remaining gap to the full BLST18 theorem is exactly the container-method
+upper bound — `EventualRatioUpper (1/4)`, i.e. `f(n) ≤ 2^{(1/4+o(1))n}` —
+which relies on Green's container lemma, an arithmetic removal lemma and the
+BLST18 fingerprint counting; only the conditional reduction is proved here.
 -/
 
 open JSP000728
@@ -80,6 +94,22 @@ theorem jsp_000728_ratio_le_four_fifths :
     ∀ᶠ n : ℕ in Filter.atTop,
       Real.logb 2 (maxSumFreeCount n : ℝ) / (n : ℝ) ≤ 4 / 5 :=
   logb_ratio_eventually_le_four_fifths
+
+/-- A sum-free subset of `{1,…,n}` has at most `⌈n/2⌉` elements. -/
+theorem jsp_000728_sumfree_max_card {n : ℕ} {M : Finset ℤ}
+    (hM : M ∈ maxSumFreeSets n) : M.card ≤ (n + 1) / 2 :=
+  card_le_of_isMaxSumFree hM
+
+/-- The constant `1/4` is the sharp threshold: no smaller eventual upper
+bound on `log₂ f(n)/n` is possible. -/
+theorem jsp_000728_sharp_threshold {c : ℝ} (h : c < 1 / 4) :
+    ¬ EventualRatioUpper c :=
+  not_eventualRatioUpper_of_lt_quarter h
+
+/-- Conditional closing theorem: the BLST18 container hypothesis implies the
+sharp asymptotic `log₂ f(n)/n → 1/4`. -/
+theorem jsp_000728_conditional (h : MaxContainerBound) : SharpAsymptotic :=
+  sharpAsymptotic_of_maxContainerBound h
 
 /-- Exact counts for the smallest intervals. -/
 theorem jsp_000728_exact :
