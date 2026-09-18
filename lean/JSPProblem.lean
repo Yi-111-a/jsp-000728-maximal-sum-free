@@ -27,3 +27,8 @@ import JSPProblem.Removal
 import JSPProblem.Fingerprint
 import JSPProblem.MinDecomp
 import JSPProblem.IntervalCount
+import JSPProblem.Determination
+import JSPProblem.MaxDecomp
+import JSPProblem.EvenOdd
+import JSPProblem.NoConsec
+import JSPProblem.FibBound

@@ -108,6 +108,17 @@ theorem jsp_000728_monotone : Monotone maxSumFreeCount :=
 theorem jsp_000728_eventual_upper : EventualRatioUpper (Real.logb 2 3 / 2) :=
   fun ε hε => logb_ratio_eventually_le_logb3_half hε
 
+/-- The Fibonacci-path bound improves the proved upper bound to
+`limsup log₂ f(n)/n ≤ log₂ φ ≈ 0.6942` (was `log₂ 3 / 2 ≈ 0.7925`). -/
+theorem jsp_000728_eventual_upper_fib :
+    EventualRatioUpper (Real.logb 2 Real.goldenRatio) :=
+  eventualRatioUpper_goldenRatio
+
+/-- Pointwise form: `f n ≤ n·φ^n` for `n ≥ 1`. -/
+theorem jsp_000728_upper_fib (n : ℕ) (hn : 1 ≤ n) :
+    (maxSumFreeCount n : ℝ) ≤ n * Real.goldenRatio ^ n :=
+  maxSumFreeCount_le_goldenRatio hn
+
 /-- Eventually `log₂ f(n)/n ≤ 4/5`. -/
 theorem jsp_000728_ratio_le_four_fifths :
     ∀ᶠ n : ℕ in Filter.atTop,
