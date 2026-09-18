@@ -22,3 +22,8 @@ import JSPProblem.MaxCard
 import JSPProblem.Extremal
 import JSPProblem.SharpThreshold
 import JSPProblem.ContainerReduction
+import JSPProblem.Supersaturation
+import JSPProblem.Removal
+import JSPProblem.Fingerprint
+import JSPProblem.MinDecomp
+import JSPProblem.IntervalCount

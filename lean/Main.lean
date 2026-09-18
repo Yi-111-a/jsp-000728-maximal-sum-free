@@ -41,12 +41,31 @@ This development formalizes:
 * the conditional closing theorem: the BLST18 container hypothesis
   `MaxContainerBound` (exponentially few containers, each housing
   `≤ 2^{(1/4+o(1))n}` maximal sum-free sets) implies `SharpAsymptotic`
-  (`sharpAsymptotic_of_maxContainerBound`).
+  (`sharpAsymptotic_of_maxContainerBound`);
+* a decomposition of that hypothesis into the named `Prop`s
+  `ContainerExistence`, `SchurRemoval` and `FingerprintBound`
+  (Removal.lean): `ContainerExistence + SchurRemoval` already yields the
+  conditional `EventualRatioUpper (1/2)`, and
+  `ContainerExistence + FingerprintBound` yields `SharpAsymptotic`;
+* Schur-triple supersaturation (Supersaturation.lean): the fiber formula
+  `schurTripleCount s = ∑ z ∈ s, |{x ∈ s : z − x ∈ s}|`, the
+  inclusion–exclusion bound, the quantitative
+  `2·|s| ≤ n + 1 + schurTripleCount s`, and the removal-lemma converse
+  `schurTripleCount s ≤ 3·|s∖t|·|s|²` for sum-free `t ⊆ s`;
+* per-container vocabulary (Fingerprint.lean): `IsMaxSumFreeIn`,
+  `maxSumFreeSetsIn`, the descent `IsMaxSumFree n M → M ⊆ C →
+  IsMaxSumFreeIn C M`, and the singleton counts for the `odds`/`upperHalf`
+  containers;
+* the min-element decomposition (MinDecomp.lean):
+  `maxSumFreeCount n = ∑ m, (minClass n m).card` with per-class bounds
+  `≤ 2^{n+1−m}` and `≤ 1` for `2m > n` (upper-half uniqueness);
+* interval-relative sum-free counting (IntervalCount.lean):
+  `sumFreeCountIn` with `≤ min(2^{b+1−a}, 2·3^{b/2})` on `Icc a b`.
 
 The remaining gap to the full BLST18 theorem is exactly the container-method
 upper bound — `EventualRatioUpper (1/4)`, i.e. `f(n) ≤ 2^{(1/4+o(1))n}` —
 which relies on Green's container lemma, an arithmetic removal lemma and the
-BLST18 fingerprint counting; only the conditional reduction is proved here.
+BLST18 fingerprint counting; only the conditional reductions are proved here.
 -/
 
 open JSP000728
@@ -110,6 +129,18 @@ theorem jsp_000728_sharp_threshold {c : ℝ} (h : c < 1 / 4) :
 sharp asymptotic `log₂ f(n)/n → 1/4`. -/
 theorem jsp_000728_conditional (h : MaxContainerBound) : SharpAsymptotic :=
   sharpAsymptotic_of_maxContainerBound h
+
+/-- Decomposed conditional headline: Green/BMS container existence plus the
+BLST18 per-container fingerprint count imply the sharp asymptotic. -/
+theorem jsp_000728_conditional_decomposed (hCE : ContainerExistence)
+    (hFB : FingerprintBound) : SharpAsymptotic :=
+  sharpAsymptotic_of_containerExistence_fingerprint hCE hFB
+
+/-- Weaker conditional bound: container existence plus the arithmetic removal
+lemma already yield `limsup log₂ f(n)/n ≤ 1/2`. -/
+theorem jsp_000728_conditional_half (hCE : ContainerExistence)
+    (hSR : SchurRemoval) : EventualRatioUpper (1 / 2) :=
+  eventualRatioUpper_half_of_removal_containers hCE hSR
 
 /-- Exact counts for the smallest intervals. -/
 theorem jsp_000728_exact :
