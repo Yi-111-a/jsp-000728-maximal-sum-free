@@ -502,3 +502,113 @@ five-regime per-cell bound (`secondMinClass_card_le_cell`). -/
 theorem jsp_000728_eventual_upper_sharp :
     EventualRatioUpper (max (347 / 500 : ℝ) (1 / 2)) :=
   eventualRatioUpper_347_500
+
+/-- **Frontier milestone (sharpened):** the limsup exponent is at most
+`111/160 = 0.69375`, improving on `347/500 = 0.694` — the orbit regime
+coefficient is now `1777/2700` and the staircase threshold is `40k ≤ m`. -/
+theorem jsp_000728_eventual_upper_111_160 :
+    EventualRatioUpper (max (111 / 160 : ℝ) (1 / 2)) :=
+  eventualRatioUpper_111_160
+
+/-- **Moon–Moser bound** for the link graph: the number of maximal
+link-independent subsets of `B` is at most `3^{|B|/3}` (Wolfovitz ingredient). -/
+theorem jsp_000728_moon_moser (S B : Finset ℤ) :
+    ((linkMaxSets S B).card : ℝ) ≤ (3 : ℝ) ^ ((B.card : ℝ) / 3) :=
+  card_linkMaxSets_le_three_rpow S B
+
+/-- **Fingerprint count:** for every `ε > 0` there is `δ > 0` such that
+eventually the number of subsets of `{1,…,n}` of size `≤ δn` is at most
+`2^{εn}` — the container-count input for the BMS fingerprint method. -/
+theorem jsp_000728_fingerprint_count {ε : ℝ} (hε : 0 < ε) :
+    ∃ δ : ℝ, 0 < δ ∧ ∀ᶠ n : ℕ in Filter.atTop,
+      (((interval n).powerset.filter
+          (fun s => s.card ≤ ⌊δ * (n : ℝ)⌋₊)).card : ℝ) ≤
+        (2 : ℝ) ^ (ε * (n : ℝ)) :=
+  smallPowersetCard_le_two_rpow hε
+
+/-- **Schur supersaturation:** every `s ⊆ {1,…,n}` satisfies
+`3|s|² − 2|s|n − |s| ≤ 2·(number of Schur triples in s)`. -/
+theorem jsp_000728_supersaturation {n : ℕ} {s : Finset ℤ}
+    (hs : s ⊆ interval n) :
+    3 * (s.card : ℤ) ^ 2 - 2 * (s.card : ℤ) * (n : ℤ) - (s.card : ℤ) ≤
+      2 * (schurTripleCount s : ℤ) :=
+  two_mul_schurTripleCount_ge hs
+
+/-- **Link graphs are triangle-free on the upper half:** for `S` sum-free in
+`{1,…,n}` and `x, y, z > n/2` pairwise distinct, `{x,y,z}` is not a link
+triangle — the Wolfovitz/Hujter–Tuza input. -/
+theorem jsp_000728_link_triangle_free {n : ℕ} {S B : Finset ℤ}
+    (hS : S ⊆ Finset.Icc 1 (n : ℤ)) (hSf : IsSumFree S)
+    (hB : ∀ x ∈ B, (n : ℤ) < 2 * x) :
+    ∀ x ∈ B, ∀ y ∈ B, ∀ z ∈ B, x ≠ y → y ≠ z → x ≠ z →
+      ¬ (linkAdj S x y ∧ linkAdj S y z ∧ linkAdj S x z) :=
+  linkTriangleFree hS hSf hB
+
+/-- **Hujter–Tuza bound for link graphs:** on the upper half the link graph
+of a sum-free `S` is triangle-free, so it has at most `2^{|B|/2}` maximal
+independent sets — the Wolfovitz counting ingredient. -/
+theorem jsp_000728_hujter_tuza {n : ℕ} {S B : Finset ℤ}
+    (hS : S ⊆ Finset.Icc 1 (n : ℤ)) (hSf : IsSumFree S)
+    (hB : ∀ x ∈ B, (n : ℤ) < 2 * x) :
+    ((linkMaxSets S B).card : ℝ) ≤ (2 : ℝ) ^ ((B.card : ℝ) / 2) :=
+  card_linkMaxSets_le_two_rpow hS hSf hB
+
+/-- **Fingerprint determination:** for `n < 2(K+1)` every maximal sum-free
+`M ⊆ {1,…,n}` is recovered from its fingerprint `M ∩ {1,…,K}` and the
+link-maximal upper trace `M ∩ {K+1,…,n}`; hence `f(n)` is bounded by the
+fingerprint-weighted sum of link-MIS counts. -/
+theorem jsp_000728_fingerprint_count_link {n : ℕ} {K : ℤ}
+    (hK : (n : ℤ) < 2 * (K + 1)) :
+    maxSumFreeCount n ≤
+      ∑ S ∈ (Finset.Icc 1 K).powerset,
+        (linkMaxSets S (Finset.Icc (K + 1) (n : ℤ))).card :=
+  maxSumFreeCount_le_sum_linkMaxSets hK
+
+/-- **Linear removal fragment:** deleting one vertex per Schur triple —
+every `s` contains a sum-free `t` with `(s ∖ t).card ≤ schurTripleCount s`.
+(The full removal lemma `δn² → εn` remains a named hypothesis.) -/
+theorem jsp_000728_removal_linear (s : Finset ℤ) :
+    ∃ t : Finset ℤ, t ⊆ s ∧ IsSumFree t ∧
+      (s \ t).card ≤ schurTripleCount s :=
+  exists_isSumFree_sub_card_le s
+
+/-- **Sharpened prize reduction:** the BLST18 headline follows from
+`ContainerExistence` plus `SparseFingerprintBound` — the per-container
+maximal-set count only needs to hold on containers with `o(n²)` Schur
+triples (unlike `FingerprintBound`, which `interval n` itself satisfies
+and is therefore tautological). -/
+theorem jsp_000728_sparse_reduction
+    (hCE : ContainerExistence) (hSFB : SparseFingerprintBound) :
+    SharpAsymptotic :=
+  sharpAsymptotic_of_sparse_container_fingerprint hCE hSFB
+
+/-- **Large-min containers are cheap:** a container `C ⊆ {1,…,n}` avoiding
+`{1,…,K}` houses at most `2^{(n−2K−1)₊}` maximal sum-free sets. -/
+theorem jsp_000728_mintail_container {n : ℕ} {C : Finset ℤ} {K : ℕ}
+    (hC : C ⊆ interval n) (hK : ∀ x ∈ C, (K : ℤ) < x) :
+    ((maxSumFreeSets n).filter (· ⊆ C)).card ≤
+      2 ^ ((n : ℤ) - 2 * K - 1).toNat :=
+  card_maxSumFreeSets_filter_subset_of_lower hC hK
+
+/-- **Container construction:** the fingerprint container `containerOf n T`
+covers every sum-free `I ⊇ T` — the scan only needs `a + b = x` with earlier
+`T`-elements, which `I`'s sum-freeness rules out.  The remaining kernel is
+`SmallFingerprint`: every sum-free `I` admitting a fingerprint `T ⊆ I` of
+size `o(n)`. -/
+theorem jsp_000728_container_covers {n : ℕ} {I T : Finset ℤ}
+    (hI : I ⊆ interval n) (hSf : IsSumFree I) (hT : T ⊆ I) :
+    I ⊆ containerOf n T :=
+  containerOf_covers hI hSf hT
+
+/-- The fingerprint container family has `≤ 2^{εn}` members eventually. -/
+theorem jsp_000728_container_family_small {ε : ℝ} (hε : 0 < ε) :
+    ∃ δ : ℝ, 0 < δ ∧ ∀ᶠ n : ℕ in Filter.atTop,
+      ((containerFamily n ⌊δ * (n : ℝ)⌋₊).card : ℝ) ≤
+        (2 : ℝ) ^ (ε * (n : ℝ)) :=
+  containerFamily_card_le_two_rpow hε
+
+/-- **Sum-free via maximal:** every sum-free set sits inside a maximal one
+with `≤ (n+1)/2` elements, so `sumFreeCount n ≤ f(n)·2^{(n+1)/2}`. -/
+theorem jsp_000728_sumFreeCount_le (n : ℕ) :
+    sumFreeCount n ≤ maxSumFreeCount n * 2 ^ ((n + 1) / 2) :=
+  sumFreeCount_le_maxSumFreeCount_mul_pow n

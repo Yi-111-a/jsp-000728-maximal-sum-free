@@ -58,3 +58,14 @@ import JSPProblem.OrbitStripCount
 import JSPProblem.StairMatchSharp
 import JSPProblem.StairMatchReal
 import JSPProblem.CellAssembly
+import JSPProblem.OrbitSharp
+import JSPProblem.MoonMoser
+import JSPProblem.FingerprintCount
+import JSPProblem.Supersat2
+import JSPProblem.LinkTriangleFree
+import JSPProblem.HujterTuza
+import JSPProblem.FingerprintBuild
+import JSPProblem.RemovalFragment
+import JSPProblem.MinTailBound
+import JSPProblem.ContainerBuild
+import JSPProblem.SumFreeViaMax

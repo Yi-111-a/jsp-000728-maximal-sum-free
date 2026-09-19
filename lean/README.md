@@ -10,11 +10,19 @@ Catalog answer (Balogh–Liu–Sharifzadeh–Treglown, JEMS 2018; Proc. AMS 2015
 **WIP / partial formalization — not prize_ready.** Zero `sorry`/`admit`, standard
 axioms only. Proved: definitions, exact counts `f(0)…f(12)`, the sharp-rate lower
 bound `f(n) ≥ 2^{⌊n/4⌋}`, the elementary upper bound `f(n) ≤ 2·3^{n/2}`,
-monotonicity, obstruction/covering lemmas, container-method vocabulary, and the
-reduction `SharpAsymptotic ↔ EventualRatioUpper (1/4)`. The remaining gap is the
-container-method upper bound `f(n) ≤ 2^{(1/4+o(1))n}` (Green's container lemma +
-removal lemma + fingerprint counting); see `JSPProblem/ContainerReduction.lean`
-for the conditional closing theorem.
+the unconditional limsup bound `limsup log₂ f(n)/n ≤ 111/160 = 0.69375`
+(`eventualRatioUpper_111_160`, assembled from a five-regime per-cell engine),
+monotonicity, obstruction/covering lemmas, container-method vocabulary,
+Moon–Moser/Hujter–Tuza link-graph MIS bounds (`3^{n/3}` general, `2^{n/2}`
+triangle-free), link-graph triangle-freeness on the upper half, the
+fingerprint entropy count `#{s ⊆ [n] : |s| ≤ δn} ≤ 2^{εn}`, Schur-triple
+supersaturation (`3t²−2tn−t ≤ 2·#triples`, sparse sets ≤ `2n/3 + o(n)`),
+the linear removal fragment, and the sharpened reduction
+`ContainerExistence → SparseFingerprintBound → SharpAsymptotic`. The remaining
+gap is the container-method upper bound `f(n) ≤ 2^{(1/4+o(1))n}` (Green/BMS
+container existence + per-container fingerprint counting); see
+`JSPProblem/Removal.lean` and `JSPProblem/FingerprintBuild.lean` for the
+conditional closing theorems.
 
 ## Build
 
