@@ -178,7 +178,7 @@ theorem zkStab_card_dvd (hl : 0 < l)
     show Nat.card ↥((AddAction.stabilizer (ZMod l.toNat)
         ((zkS l A₀) : Set (ZMod l.toNat))) : Set (ZMod l.toNat)) =
         (zkS l A₀).addStab.card
-    rw [← hcoe, Nat.card_coe_set_eq, Set.ncard_coe_Finset]
+    rw [← hcoe, Nat.card_coe_set_eq, Set.ncard_coe_finset]
   rw [hcard1] at hdvd
   have hcard2 : Nat.card (ZMod l.toNat) = l.toNat := Nat.card_zmod _
   rw [hcard2] at hdvd
@@ -212,10 +212,10 @@ theorem zkTight_st
     have h2 := Nat.eq_of_mul_eq_mul_left hHpos this
     omega
   · -- `t ≥ 1` since `B + H ≠ ∅`.
-    obtain ⟨b, hb⟩ := hS
-    obtain ⟨x, hxB, y, hyB, _⟩ := Finset.mem_image₂.1 hb
     have h0H : (0 : ZMod l.toNat) ∈ (zkS l A₀).addStab :=
       zero_mem_addStab.2 hS
+    obtain ⟨b, hb⟩ := hS
+    obtain ⟨x, hxB, y, hyB, _⟩ := Finset.mem_image₂.1 hb
     have hxBH : x ∈ zkB l A₀ + (zkS l A₀).addStab :=
       Finset.mem_add.2 ⟨x, hxB, 0, h0H, add_zero x⟩
     have hpos : 0 < (zkB l A₀ + (zkS l A₀).addStab).card :=
@@ -255,7 +255,8 @@ theorem zkTight_of_union_neg_ge
     exact Finset.mem_add.2 ⟨b, hb, 0, h0H, add_zero b⟩
   have hBle := Finset.card_le_card hBH
   have hT := zkT_card_union_neg_sub_one_le hl h0 hmem
-  have hBcard := zkB_card hl h0 hmem
+  rw [← hBdef] at hT
+  have hBcard : B.card = A₀.card := zkB_card hl h0 hmem
   -- Cast everything to `ℤ` and close by `omega`.
   have hkn' : ((S.card : ℤ)) ≥ 2 * ((B + H).card : ℤ) - (H.card : ℤ) := by
     have h1 : 2 * (B + H).card - H.card ≤ S.card := hkn
@@ -332,6 +333,6 @@ theorem zkPartialResidual (hcount : ZKTightCount) : ZKPartialResidual := by
   -- Apply the fibre-count hypothesis and finish.
   have h := hcount l A₀ hl h0 hmem h2 hgen hstab hlt htight
   rw [← hSdef, ← hTdef] at h
-  exact h
+  omega
 
 end JSP000728

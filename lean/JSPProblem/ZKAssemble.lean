@@ -115,7 +115,7 @@ theorem zk_exists_unoccupied_diff_coset
     Finset.mem_image₂.2 ⟨0, h0B, 0, h0B, sub_self 0⟩
   have hSne : (zkS l A₀).Nonempty := ⟨0, h0S⟩
   have h0H : (0 : ZMod l.toNat) ∈ (zkS l A₀).addStab := zero_mem_addStab.2 hSne
-  have hHpos : 0 < (zkS l A₀).addStab.card := (⟨0, h0H⟩ : _).card_pos
+  have hHpos : 0 < (zkS l A₀).addStab.card := hSne.addStab.card_pos
   obtain ⟨s, t, hsS, htB, hst, ht1⟩ := zkTight_st htight hSne
   by_contra hcon
   push_neg at hcon
@@ -168,7 +168,7 @@ theorem zkTightCount : ZKTightCount := by
     Finset.mem_image₂.2 ⟨0, h0B, 0, h0B, sub_self 0⟩
   have hSne : (zkS l A₀).Nonempty := ⟨0, h0S⟩
   have h0H : (0 : ZMod l.toNat) ∈ (zkS l A₀).addStab := zero_mem_addStab.2 hSne
-  have hHpos : 0 < (zkS l A₀).addStab.card := (⟨0, h0H⟩ : _).card_pos
+  have hHpos : 0 < (zkS l A₀).addStab.card := hSne.addStab.card_pos
   have hBcard : (zkB l A₀).card = A₀.card := zkB_card hl h0 hmem
   have hBD : zkB l A₀ ⊆ zkB l A₀ + (zkS l A₀).addStab := by
     intro x hx

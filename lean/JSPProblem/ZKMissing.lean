@@ -49,7 +49,8 @@ theorem zkT_card_ge_card_sub_one {l : ℤ} {A₀ : Finset ℤ}
     (A₀.card : ℤ) - 1 ≤ ((zkT l A₀).card : ℤ) := by
   have h := Finset.card_le_card (erase_zero_subset_zkT h0 hmem)
   rw [Finset.card_erase_of_mem h0] at h
-  exact_mod_cast h
+  have h1 : 1 ≤ A₀.card := Finset.card_pos.2 ⟨0, h0⟩
+  omega
 
 section MissingCoset
 
@@ -101,7 +102,7 @@ theorem neg_mem_zkStab {l : ℤ} {A₀ : Finset ℤ} (hS : (zkS l A₀).Nonempty
     -x ∈ (zkS l A₀).addStab := by
   have h := Finset.neg_addStab hS
   rw [← h]
-  exact Finset.mem_neg.2 (neg_neg x ▸ hx)
+  exact Finset.mem_neg.2 ⟨x, hx, rfl⟩
 
 /-- The stabilizer `H` is closed under subtraction. -/
 theorem sub_mem_zkStab {l : ℤ} {A₀ : Finset ℤ} (hS : (zkS l A₀).Nonempty)
@@ -144,7 +145,7 @@ theorem hintRes_add {l : ℤ} {A₀ : Finset ℤ} (hl : 0 < l)
   rw [hv]
   have hl' : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
   push_cast
-  rw [hl', Nat.cast_add, Int.add_emod]
+  rw [hl']
 
 /-- **Existence of a missing difference coset.**  If every difference of
 `B = A₀ ⊆ ZMod l` lay in the stabilizer `H`, then in particular every
@@ -163,12 +164,13 @@ theorem zk_exists_missing_coset
     Finset.mem_image₂.2 ⟨0, h0B, 0, h0B, sub_self 0⟩
   have hSne : (zkS l A₀).Nonempty := ⟨0, h0S⟩
   have h0H : (0 : ZMod l.toNat) ∈ (zkS l A₀).addStab := zero_mem_addStab.2 hSne
-  have hHpos : 0 < (zkS l A₀).addStab.card := (⟨0, h0H⟩ : _).card_pos
+  have hHpos : 0 < (zkS l A₀).addStab.card := hSne.addStab.card_pos
   -- `H ⊆ S`, hence `|H| < l`.
   have hsubHS : (zkS l A₀).addStab ⊆ zkS l A₀ := by
     intro x hx
-    have h := Finset.vadd_finset_addStab_subset h0S
-    exact h (Finset.mem_vadd.2 ⟨x, hx, zero_vadd _⟩)
+    have hxv : x +ᵥ zkS l A₀ = zkS l A₀ := (mem_addStab hSne).1 hx
+    rw [← hxv]
+    exact Finset.mem_vadd.2 ⟨0, h0S, by simp⟩
   have hltH : (zkS l A₀).addStab.card < l.toNat :=
     lt_of_le_of_lt (Finset.card_le_card hsubHS) hlt
   have hdvdH : (zkS l A₀).addStab.card ∣ l.toNat := zkStab_card_dvd hl hSne
