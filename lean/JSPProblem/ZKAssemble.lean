@@ -63,7 +63,7 @@ theorem intCast_emod_self (hl : 0 < l) (x : ℤ) :
       exact ZMod.natCast_self _
     rwa [Int.toNat_of_nonneg (le_of_lt hl)] at e
   conv_rhs => rw [← Int.emod_add_ediv_mul x l]
-  rw [Int.cast_add, Int.cast_mul, hcastl, zero_mul, add_zero]
+  rw [Int.cast_add, Int.cast_mul, hcastl, mul_zero, add_zero]
 
 /-- `x ∈ [0, l)` equals `val` of its cast to `ZMod l`. -/
 theorem val_intCast_of_mem_Ico (hl : 0 < l) {x : ℤ} (hx0 : 0 ≤ x) (hxl : x < l) :

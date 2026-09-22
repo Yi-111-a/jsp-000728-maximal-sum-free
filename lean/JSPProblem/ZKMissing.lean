@@ -170,7 +170,7 @@ theorem zk_exists_missing_coset
     intro x hx
     have hxv : x +ᵥ zkS l A₀ = zkS l A₀ := (mem_addStab hSne).1 hx
     rw [← hxv]
-    exact Finset.mem_vadd.2 ⟨0, h0S, by simp⟩
+    exact Finset.mem_vadd_finset.2 ⟨0, h0S, by simp⟩
   have hltH : (zkS l A₀).addStab.card < l.toNat :=
     lt_of_le_of_lt (Finset.card_le_card hsubHS) hlt
   have hdvdH : (zkS l A₀).addStab.card ∣ l.toNat := zkStab_card_dvd hl hSne
@@ -189,9 +189,10 @@ theorem zk_exists_missing_coset
   have hcardstab :
       Nat.card (AddAction.stabilizer (ZMod l.toNat) ((zkS l A₀) : Set (ZMod l.toNat))) =
         (zkS l A₀).addStab.card := by
-    rw [← hcoe]
-    rw [Nat.card_eq_fintype_card]
-    exact Fintype.card_coe _
+    show Nat.card ↥((AddAction.stabilizer (ZMod l.toNat)
+        ((zkS l A₀) : Set (ZMod l.toNat))) : Set (ZMod l.toNat)) =
+        (zkS l A₀).addStab.card
+    rw [← hcoe, Nat.card_coe_set_eq, Set.ncard_coe_finset]
   have hnsmul : ∀ x : ZMod l.toNat, x ∈ (zkS l A₀).addStab →
       (zkS l A₀).addStab.card • x = 0 := by
     intro x hx
@@ -223,14 +224,15 @@ theorem zk_exists_missing_coset
     rw [nsmul_eq_mul] at hz
     -- `((|H| : ℤ) * a : ZMod l) = 0`, so `l ∣ |H| * a`.
     have hz' : (((zkS l A₀).addStab.card : ℤ) * a : ZMod l.toNat) = 0 := by
-      rw [Int.cast_mul]
-      have e : (((zkS l A₀).addStab.card : ℤ) : ZMod l.toNat) =
-          ((zkS l A₀).addStab.card : ZMod l.toNat) := by norm_cast
-      rw [e]
+      push_cast
       exact hz
+    rw [← Int.cast_mul] at hz'
     rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at hz'
     -- `l = |H| * m` divides `|H| * a`; cancel `|H| > 0`.
-    rw [hm, Nat.cast_mul] at hz'
+    have hmcast : (l.toNat : ℤ) =
+        ((zkS l A₀).addStab.card : ℤ) * (m : ℤ) := by
+      exact_mod_cast hm
+    rw [hmcast] at hz'
     obtain ⟨k, hk⟩ := hz'
     refine ⟨k, ?_⟩
     have hk' : ((zkS l A₀).addStab.card : ℤ) * a =
@@ -241,10 +243,14 @@ theorem zk_exists_missing_coset
       (show ((zkS l A₀).addStab.card : ℤ) ≠ 0 by exact_mod_cast hHpos.ne') hk'
   -- `m ∣ l` and `m ≥ 2`: contradict the generating hypothesis.
   have hml : (m : ℤ) ∣ l := by
-    refine ⟨(zkS l A₀).addStab.card, ?_⟩
-    rw [← hcastl, hm]
-    push_cast
-    ring
+    have hdvd : (m : ℤ) ∣ (l.toNat : ℤ) := by
+      refine ⟨(zkS l A₀).addStab.card, ?_⟩
+      have hmcast : (l.toNat : ℤ) =
+          ((zkS l A₀).addStab.card : ℤ) * (m : ℤ) := by
+        exact_mod_cast hm
+      rw [hmcast]
+      ring
+    rwa [hcastl] at hdvd
   obtain ⟨x, hx, y, hy, hxy⟩ := hgen m (by exact_mod_cast hm2) hml
   exact hxy (dvd_sub (hdiv x hx) (hdiv y hy))
 
