@@ -113,9 +113,9 @@ lemma not_mem_image₂_sub_iff_not_mem_posDiff
   rw [mem_posDiff]
   constructor
   · intro h
-    exact fun hp => h hp.1
+    exact fun hp => h (Finset.mem_image₂.2 hp.1)
   · intro h hmem
-    exact h ⟨hmem, hpos⟩
+    exact h ⟨Finset.mem_image₂.1 hmem, hpos⟩
 
 /-- **The `r = s + u` decomposition.**  The remove-max defect splits at
 `t = l − l'`: elements of `A'` below `t` contribute automatically
@@ -145,7 +145,7 @@ theorem removeMaxR_eq
     simp only [Finset.mem_filter, Finset.mem_union]
     constructor
     · rintro ⟨ha', hna⟩
-      rcases lt_or_le a' (l - l') with h | h
+      rcases lt_or_ge a' (l - l') with h | h
       · exact Or.inl ⟨ha', h⟩
       · refine Or.inr ⟨ha', h, ?_⟩
         rwa [← not_mem_image₂_sub_iff_not_mem_posDiff hl'max hl'l ha' h]
@@ -188,7 +188,7 @@ lemma card_sdiff_Icc_le
   have hsd : (Finset.Icc 0 l' \ A').card =
       (Finset.Icc 0 l').card - A'.card := Finset.card_sdiff_of_subset hAsub
   have hIcc : ((Finset.Icc (0 : ℤ) l').card : ℤ) = l' + 1 := by
-    have h := Int.card_Icc_of_le (a := (0 : ℤ)) (b := l') hl'0
+    have h := Int.card_Icc_of_le (a := (0 : ℤ)) (b := l') (by omega)
     omega
   rw [hsd] at hcard
   have hcast : (((Finset.Icc 0 y \ A').card : ℕ) : ℤ) ≤
@@ -211,11 +211,9 @@ lemma card_top_le_holes_of_not_mem_posDiff
     simp only [Finset.mem_sdiff, Finset.mem_inter, Finset.mem_Icc, not_and]
     constructor
     · rintro ⟨⟨hz0, hzl'⟩, hz⟩
-      refine ⟨?_, hz0, hzl'⟩
-      by_contra hzA
-      exact hz hzA
+      exact ⟨hz ⟨hz0, hzl'⟩, hz0, hzl'⟩
     · rintro ⟨hzA, hz0, hzl'⟩
-      exact ⟨⟨hz0, hzl'⟩, fun h => h hzA⟩
+      exact ⟨⟨hz0, hzl'⟩, fun _ => hzA⟩
   have hdisj : Disjoint (Finset.Icc 0 (l' - x) \ A')
       (A' ∩ Finset.Icc 0 (l' - x)) := by
     rw [Finset.disjoint_left]
@@ -234,8 +232,9 @@ lemma card_top_le_holes_of_not_mem_posDiff
         by_cases hz : z ∈ A'
         · exact Or.inr ⟨hz, h⟩
         · exact Or.inl ⟨h, hz⟩
-    rw [← hunion]
-    exact (Finset.card_union_of_disjoint hdisj).symm
+    have hcard := Finset.card_union_of_disjoint hdisj
+    rw [hunion] at hcard
+    omega
   have hIcc : ((Finset.Icc (0 : ℤ) (l' - x)).card : ℤ) = l' - x + 1 := by
     have h := Int.card_Icc_of_le (a := (0 : ℤ)) (b := l' - x) (by omega)
     omega
@@ -304,7 +303,7 @@ lemma mem_posDiff_of_gap_lt
       · rintro (⟨hz, -⟩ | ⟨hz, -⟩) <;> exact hz
       · intro hz
         have hz' := hmem' z hz
-        rcases lt_or_le z x with h | h
+        rcases lt_or_ge z x with h | h
         · exact Or.inl ⟨hz, h⟩
         · exact Or.inr ⟨hz, h, hz'.2⟩
     have hdisj : Disjoint ((A.erase l).filter (· < x))
@@ -314,8 +313,9 @@ lemma mem_posDiff_of_gap_lt
       have h1 := (Finset.mem_filter.1 hz1).2
       have h2 := Finset.mem_Icc.1 (Finset.mem_inter.1 hz2).2
       omega
-    rw [← hunion]
-    exact (Finset.card_union_of_disjoint hdisj).symm
+    have hcard := Finset.card_union_of_disjoint hdisj
+    rw [hunion] at hcard
+    omega
   -- `s ≥ |A' ∩ [0, x)| ≥ k' − h`.
   have hslt : (A.erase l).filter (· < x) ⊆
       (A.erase l).filter (fun a' => a' < l - l') := by
@@ -395,6 +395,7 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
   have hmax : ∀ x ∈ A, x ≤ l := fun x hx => (hmem x hx).2
   have hmem' : ∀ x ∈ A', 0 ≤ x ∧ x ≤ l' := fun x hx =>
     ⟨hmin x (Finset.mem_erase.1 hx).2, hl'max x hx⟩
+  have hl'0 : 0 ≤ l' := (hmem' l' hl'mem).1
   have hl'l : l' < l :=
     lt_of_le_of_ne (hmax l' (Finset.mem_erase.1 hl'mem).2)
       (Finset.mem_erase.1 hl'mem).1
@@ -415,7 +416,8 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
     have := hmin l hl; omega
   have h0' : (0 : ℤ) ∈ A' := Finset.mem_erase.2 ⟨ne_of_lt hl0, h0⟩
   have hcardA' : ((A'.card : ℤ)) = (A.card : ℤ) - 1 := by
-    have h := Finset.card_erase_of_mem hl
+    have h : A'.card = A.card - 1 := by
+      rw [hA']; exact Finset.card_erase_of_mem hl
     omega
   have hr1 : 1 ≤ r := one_le_removeMaxR h0 hl hmin hmax hl0
   -- The gap gives `l' ≤ 2k' − 3` (density) and `2r ≤ l' + 1 − 2h`.
@@ -460,7 +462,7 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
     rwa [sub_zero] at h
   have hMeq : M = Finset.Icc 1 l' \ P := by
     ext x
-    simp [hM, Finset.mem_sdiff, and_comm]
+    simp only [hM, Finset.mem_sdiff, Finset.mem_filter]
   have hMcard : (M.card : ℤ) = l' - (P.card : ℤ) := by
     have hIcc : ((Finset.Icc (1 : ℤ) l').card : ℤ) = l' := by
       have h' := Int.card_Icc_of_le (a := (1 : ℤ)) (b := l') (by omega)
@@ -483,31 +485,32 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
       rw [hM', Finset.disjoint_left]
       intro x hx1 hx2
       exact (Finset.mem_filter.1 hx2).2 (Finset.mem_filter.1 hx1).2
-    rw [h]
-    exact Finset.card_union_of_disjoint hdisj
+    have hcard := Finset.card_union_of_disjoint hdisj
+    rw [← h] at hcard
+    exact hcard
   have hMu : (M.filter (fun x => l - x ∈ A')).card = u := by
     -- Bijection `x ↦ l − x` onto `U`.
     have hbij : (M.filter (fun x => l - x ∈ A')).image (l - ·) =
         A'.filter (fun a' => t ≤ a' ∧ l - a' ∉ P) := by
       ext z
-      simp only [Finset.mem_image, Finset.mem_filter]
+      simp only [hM, Finset.mem_image, Finset.mem_filter]
       constructor
       · rintro ⟨x, ⟨⟨hxI, hxP⟩, hxA⟩, rfl⟩
         have hxW := Finset.mem_Icc.1 (hMW x (Finset.mem_filter.2 ⟨hxI, hxP⟩))
         refine ⟨⟨hxA, by omega⟩, ?_⟩
         rw [show l - (l - x) = x by ring]
         exact hxP
-      · rintro ⟨⟨hzA, hzt⟩, hzP⟩
+      · rintro ⟨hzA, hzt, hzP⟩
         have hzle := (hmem' z hzA).2
         refine ⟨l - z, ⟨⟨Finset.mem_Icc.2 ⟨by omega, by omega⟩, ?_⟩, ?_⟩, by ring⟩
-        · rw [show l - (l - z) = z by ring]
-          exact hzP
-        · exact hzA
-    rw [← hbij, Finset.card_image_of_injective]
-    · congr 1
-    · intro a b hab
-      have : l - a = l - b := hab
-      omega
+        · exact hzP
+        · rwa [show l - (l - z) = z by ring]
+    have hcard : ((M.filter (fun x => l - x ∈ A')).image (l - ·)).card =
+        (M.filter (fun x => l - x ∈ A')).card :=
+      Finset.card_image_of_injective _ (fun a b hab => by omega)
+    rw [hbij] at hcard
+    rw [hu]
+    exact hcard.symm
   -- `p' + m' = η`: the `l − ·` involution sends `M'` onto
   -- `{x ∈ W ∖ A' : l − x ∉ P}`.
   have hFmbij : (M'.image (l - ·)) =
@@ -517,14 +520,15 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
       Finset.mem_Icc]
     constructor
     · rintro ⟨x, ⟨⟨⟨hx1, hx2⟩, hxP⟩, hxA⟩, rfl⟩
+      have hxW := Finset.mem_Icc.1 (hMW x (Finset.mem_filter.2
+        ⟨Finset.mem_Icc.2 ⟨hx1, hx2⟩, hxP⟩))
       refine ⟨⟨⟨by omega, by omega⟩, hxA⟩, ?_⟩
       rw [show l - (l - x) = x by ring]
       exact hxP
     · rintro ⟨⟨⟨hz1, hz2⟩, hzA⟩, hzP⟩
       refine ⟨l - z, ⟨⟨⟨by omega, by omega⟩, ?_⟩, ?_⟩, by ring⟩
-      · rw [show l - (l - z) = z by ring]
-        exact hzP
-      · exact hzA
+      · exact hzP
+      · rwa [show l - (l - z) = z by ring]
   have hFmcard : ((W \ A').filter (fun x => l - x ∉ P)).card = M'.card := by
     rw [← hFmbij, Finset.card_image_of_injective]
     intro a b hab
@@ -548,9 +552,9 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
       intro x hx1 hx2
       exact (Finset.mem_filter.1 hx2).2 (Finset.mem_filter.1 hx1).2
     have h := Finset.card_union_of_disjoint hdisj
-    rw [← hsplitη, h] at *
-    rw [hη]
-    rw [← hFmcard]
+    rw [← hsplitη] at h
+    rw [hη, hp', ← hFmcard]
+    exact h
   -- `η = w − α` with `w = l' − t + 1`.
   have hA'W : A' ∩ W = A'.filter (t ≤ ·) := by
     ext x
@@ -564,7 +568,12 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
     have hsd : (W \ A').card = W.card - (A' ∩ W).card := by
       have h' : W \ A' = W \ (A' ∩ W) := by
         ext x
-        simp [Finset.mem_sdiff, Finset.mem_inter]
+        simp only [Finset.mem_sdiff, Finset.mem_inter, not_and]
+        constructor
+        · rintro ⟨hxW, hxA⟩
+          exact ⟨hxW, fun hA => absurd hA hxA⟩
+        · rintro ⟨hxW, h⟩
+          exact ⟨hxW, fun hxA => absurd hxW (h hxA)⟩
       rw [h']
       exact Finset.card_sdiff_of_subset Finset.inter_subset_right
     have hIcc : ((Finset.Icc t l').card : ℤ) = l' - t + 1 := by
@@ -586,7 +595,7 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
       constructor
       · rintro (⟨hx, -⟩ | ⟨hx, -⟩) <;> exact hx
       · intro hx
-        rcases lt_or_le x t with h' | h'
+        rcases lt_or_ge x t with h' | h'
         · exact Or.inl ⟨hx, h'⟩
         · exact Or.inr ⟨hx, h'⟩
     have hdisj : Disjoint (A'.filter (· < t)) (A'.filter (t ≤ ·)) := by
@@ -598,15 +607,20 @@ theorem removeMaxGap_of_residual (hres : RemoveMaxGapResidual) : RemoveMaxGap :=
     have hc := Finset.card_union_of_disjoint hdisj
     rw [h] at hc
     rw [hs, hα]
-    exact hc
+    exact hc.symm
   -- Apply the residual.
   have hres' := hres A' l l' h0' hl'mem hmem' hdense h2k'l hlow
     (by
-      have hcast : (((s + u : ℕ) : ℤ)) ≤ l' + 1 - 2 * h := by
-        rw [← hrsu]
+      have hcast : (2 : ℤ) * ((s + u : ℕ) : ℤ) ≤ l' + 1 - 2 * h := by
+        have hrsuZ : (r : ℤ) = ((s + u : ℕ) : ℤ) := by exact_mod_cast hrsu
+        rw [← hrsuZ]
         exact hrgap
-      rw [hs, hu, ht, hh] at hcast
-      exact_mod_cast hcast)
+      rw [hs, hu, hP, ht, hh] at hcast
+      exact hcast)
+  -- Re-express the residual conclusion in terms of `p'`, `t`, `h`.
+  have hres'' : l' - h + 2 - 2 * t ≤ 2 * (p' : ℤ) := by
+    rw [hp', hW, hP, ht, hh]
+    exact hres'
   -- Final assembly: `|A − A| = |D'| + 2r`, `|D'| = 2|P| + 1`,
   -- `|P| = l' − m`, `m = u + m'`, `p' + m' = η = l' − t + 1 − α`, `s + α = k'`.
   have hD'card : (D'.card : ℤ) = 2 * (P.card : ℤ) + 1 := by
