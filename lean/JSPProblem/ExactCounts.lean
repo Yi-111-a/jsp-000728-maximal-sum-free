@@ -61,15 +61,23 @@ theorem count_seven : maxSumFreeCount 7 = 8 := by decide
 
 theorem count_eight : maxSumFreeCount 8 = 13 := by decide
 
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 100000 in
 theorem count_nine : maxSumFreeCount 9 = 17 := by
   rw [maxSumFreeCount_eq_maskCount]; decide
 
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 100000 in
 theorem count_ten : maxSumFreeCount 10 = 23 := by
   rw [maxSumFreeCount_eq_maskCount]; decide
 
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 100000 in
 theorem count_eleven : maxSumFreeCount 11 = 29 := by
   rw [maxSumFreeCount_eq_maskCount]; decide
 
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 100000 in
 theorem count_twelve : maxSumFreeCount 12 = 37 := by
   rw [maxSumFreeCount_eq_maskCount]; decide
 

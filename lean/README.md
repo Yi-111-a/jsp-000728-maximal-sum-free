@@ -7,22 +7,25 @@ Catalog answer (Balogh–Liu–Sharifzadeh–Treglown, JEMS 2018; Proc. AMS 2015
 
 ## Status
 
-**WIP / partial formalization — not prize_ready.** Zero `sorry`/`admit`, standard
-axioms only. Proved: definitions, exact counts `f(0)…f(12)`, the sharp-rate lower
-bound `f(n) ≥ 2^{⌊n/4⌋}`, the elementary upper bound `f(n) ≤ 2·3^{n/2}`,
-the unconditional limsup bound `limsup log₂ f(n)/n ≤ 111/160 = 0.69375`
-(`eventualRatioUpper_111_160`, assembled from a five-regime per-cell engine),
-monotonicity, obstruction/covering lemmas, container-method vocabulary,
-Moon–Moser/Hujter–Tuza link-graph MIS bounds (`3^{n/3}` general, `2^{n/2}`
-triangle-free), link-graph triangle-freeness on the upper half, the
-fingerprint entropy count `#{s ⊆ [n] : |s| ≤ δn} ≤ 2^{εn}`, Schur-triple
-supersaturation (`3t²−2tn−t ≤ 2·#triples`, sparse sets ≤ `2n/3 + o(n)`),
-the linear removal fragment, and the sharpened reduction
-`ContainerExistence → SparseFingerprintBound → SharpAsymptotic`. The remaining
-gap is the container-method upper bound `f(n) ≤ 2^{(1/4+o(1))n}` (Green/BMS
-container existence + per-container fingerprint counting); see
-`JSPProblem/Removal.lean` and `JSPProblem/FingerprintBuild.lean` for the
-conditional closing theorems.
+**Complete proof assembled — `maxSumFreeCount_sharp_asymptotic : SharpAsymptotic`**
+(`JSPProblem/Headline.lean`), i.e. `log₂ f(n) / n → 1/4`, formalizing
+`f(n) = 2^{(1/4+o(1))n}`. Zero `sorry`/`admit`, no custom axioms. The upper
+bound is discharged through the full BLST18 pipeline: BMS/Saxton–Thomason
+container existence (`BMSContainer.lean`), the Schur arithmetic removal lemma
+via tripartite `ZMod` reduction to Mathlib's `triangle_removal`
+(`ZModRemoval.lean`, `RemovalFull.lean`), the odd-container Sapozhenko bound
+(`OddBound.lean`), the DFST trichotomy (`Trichotomy.lean`, `DFSTBridge.lean`),
+and Freiman's `3k−4` theorem (`Freiman3k4.lean`) whose periodic residual case
+is closed by the tight-Kneser fibre count `zkTightCount`
+(`ZKAssemble.lean`/`ZKTight.lean`/`ZKMissing.lean`/`ZKTightAttack.lean` via
+`ZKPartial.lean`/`ZKBound2.lean`).
+
+Also proved: definitions, exact counts `f(0)…f(15)` by kernel `decide`
+(`ExactCounts.lean`, `BitmaskCount.lean`), the sharp-rate lower bound
+`f(n) ≥ 2^{⌊n/4⌋}`, elementary upper bounds, monotonicity,
+obstruction/covering lemmas, Moon–Moser/Hujter–Tuza link-graph MIS bounds,
+the fingerprint entropy count `#{s ⊆ [n] : |s| ≤ δn} ≤ 2^{εn}`, Schur-triple
+supersaturation, and the linear removal fragment.
 
 ## Build
 

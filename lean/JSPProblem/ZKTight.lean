@@ -175,9 +175,10 @@ theorem zkStab_card_dvd (hl : 0 < l)
     AddSubgroup.card_addSubgroup_dvd_card _
   have hcard1 : Nat.card (AddAction.stabilizer (ZMod l.toNat)
       ((zkS l A₀) : Set (ZMod l.toNat))) = (zkS l A₀).addStab.card := by
-    rw [← hcoe]
-    rw [Nat.card_eq_fintype_card]
-    exact Fintype.card_coe _
+    show Nat.card ↥((AddAction.stabilizer (ZMod l.toNat)
+        ((zkS l A₀) : Set (ZMod l.toNat))) : Set (ZMod l.toNat)) =
+        (zkS l A₀).addStab.card
+    rw [← hcoe, Nat.card_coe_set_eq, Set.ncard_coe_Finset]
   rw [hcard1] at hdvd
   have hcard2 : Nat.card (ZMod l.toNat) = l.toNat := Nat.card_zmod _
   rw [hcard2] at hdvd
@@ -211,16 +212,14 @@ theorem zkTight_st
     have h2 := Nat.eq_of_mul_eq_mul_left hHpos this
     omega
   · -- `t ≥ 1` since `B + H ≠ ∅`.
-    have h0B : (0 : ZMod l.toNat) ∈ zkB l A₀ := by
-      obtain ⟨b, hb⟩ := hS
-      obtain ⟨x, hxB, y, hyB, _⟩ := Finset.mem_image₂.1 hb
-      exact hxB
+    obtain ⟨b, hb⟩ := hS
+    obtain ⟨x, hxB, y, hyB, _⟩ := Finset.mem_image₂.1 hb
     have h0H : (0 : ZMod l.toNat) ∈ (zkS l A₀).addStab :=
       zero_mem_addStab.2 hS
-    have hBH : (0 : ZMod l.toNat) ∈ zkB l A₀ + (zkS l A₀).addStab :=
-      Finset.mem_add.2 ⟨0, h0B, 0, h0H, add_zero 0⟩
+    have hxBH : x ∈ zkB l A₀ + (zkS l A₀).addStab :=
+      Finset.mem_add.2 ⟨x, hxB, 0, h0H, add_zero x⟩
     have hpos : 0 < (zkB l A₀ + (zkS l A₀).addStab).card :=
-      Finset.card_pos.2 ⟨0, hBH⟩
+      Finset.card_pos.2 ⟨x, hxBH⟩
     rw [htB] at hpos
     rcases Nat.eq_zero_or_pos t with ht0 | htpos
     · rw [ht0, mul_zero] at hpos
@@ -243,8 +242,8 @@ theorem zkTight_of_union_neg_ge
   set B := zkB l A₀ with hBdef
   set S := zkS l A₀ with hSdef
   set H := S.addStab with hHdef
-  have hkn := Finset.add_kneser_sub_image₂ B
-  rw [← hSdef, ← hHdef] at hkn
+  have hkn : 2 * (B + H).card - H.card ≤ S.card :=
+    Finset.add_kneser_sub_image₂ B
   -- `B ⊆ B + H` since `0 ∈ H` (needs `S` nonempty).
   have hSne : S.Nonempty := by
     have h0B : (0 : ZMod l.toNat) ∈ B :=
@@ -332,8 +331,7 @@ theorem zkPartialResidual (hcount : ZKTightCount) : ZKPartialResidual := by
     omega
   -- Apply the fibre-count hypothesis and finish.
   have h := hcount l A₀ hl h0 hmem h2 hgen hstab hlt htight
-  rw [hSdef, hTdef] at h
-  rw [hPdef]
-  omega
+  rw [← hSdef, ← hTdef] at h
+  exact h
 
 end JSP000728
