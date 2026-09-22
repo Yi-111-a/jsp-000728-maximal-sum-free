@@ -589,7 +589,7 @@ theorem card_add_self_ge_three_mul_sub_three_of_minFac
           · exact hl1 ▸ hl
         exact Finset.card_le_card hsub
     rw [hA]
-    native_decide
+    decide
   · have hl2 : (2 : ℤ) ≤ l := by omega
     have hn0 : l.toNat ≠ 0 := by
       have := Int.toNat_of_nonneg (le_of_lt hl0); omega
@@ -1462,7 +1462,7 @@ theorem card_sub_self_ge_three_mul_sub_three_of_minFac
           · exact hl1 ▸ hl
         exact Finset.card_le_card hsub
     rw [hA]
-    native_decide
+    decide
   · have hl2 : (2 : ℤ) ≤ l := by omega
     have hn0 : l.toNat ≠ 0 := by
       have := Int.toNat_of_nonneg (le_of_lt hl0); omega

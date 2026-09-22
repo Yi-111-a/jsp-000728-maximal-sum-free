@@ -59,12 +59,19 @@ variable {l : ℤ} {A₀ : Finset ℤ}
 noncomputable abbrev hintRes (l : ℤ) (A₀ : Finset ℤ) : Finset ℤ :=
   ((zkS l A₀).addStab).image (fun x : ZMod l.toNat => (x.val : ℤ))
 
-theorem hintRes_card {l : ℤ} {A₀ : Finset ℤ} :
-    (hintRes l A₀).card = (zkS l A₀).addStab.card :=
-  Finset.card_image_of_injective _ (fun a b h => ZMod.val_injective _ h)
+theorem hintRes_card {l : ℤ} {A₀ : Finset ℤ} (hl : 0 < l) :
+    (hintRes l A₀).card = (zkS l A₀).addStab.card := by
+  haveI : NeZero l.toNat := by
+    have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
+    exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
+  exact Finset.card_image_of_injective _
+    (fun a b h => ZMod.val_injective _ (Int.natCast_inj.mp h))
 
 theorem hintRes_bounds {l : ℤ} {A₀ : Finset ℤ} (hl : 0 < l) :
     ∀ x ∈ hintRes l A₀, 0 ≤ x ∧ x < l := by
+  haveI : NeZero l.toNat := by
+    have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
+    exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
   intro x hx
   obtain ⟨h, -, rfl⟩ := Finset.mem_image.1 hx
   have := ZMod.val_lt (n := l.toNat) h
@@ -79,8 +86,11 @@ theorem hintRes_zero {l : ℤ} {A₀ : Finset ℤ}
 
 /-- Cast of an `hintRes` element back to `ZMod l` lies in `H`. -/
 theorem cast_mem_zkStab_of_mem_hintRes {l : ℤ} {A₀ : Finset ℤ} {x : ℤ}
-    (hx : x ∈ hintRes l A₀) :
+    (hl : 0 < l) (hx : x ∈ hintRes l A₀) :
     ((x : ℤ) : ZMod l.toNat) ∈ (zkS l A₀).addStab := by
+  haveI : NeZero l.toNat := by
+    have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
+    exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
   obtain ⟨h, hh, rfl⟩ := Finset.mem_image.1 hx
   rw [Int.cast_natCast, ZMod.natCast_zmod_val]
   exact hh
@@ -119,6 +129,9 @@ theorem add_mem_zkStab {l : ℤ} {A₀ : Finset ℤ}
 theorem hintRes_add {l : ℤ} {A₀ : Finset ℤ} (hl : 0 < l)
     (hSne : (zkS l A₀).Nonempty) :
     ∀ x ∈ hintRes l A₀, ∀ y ∈ hintRes l A₀, (x + y) % l ∈ hintRes l A₀ := by
+  haveI : NeZero l.toNat := by
+    have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
+    exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
   intro x hx y hy
   obtain ⟨h₁, hh₁, rfl⟩ := Finset.mem_image.1 hx
   obtain ⟨h₂, hh₂, rfl⟩ := Finset.mem_image.1 hy

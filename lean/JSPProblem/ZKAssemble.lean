@@ -68,7 +68,7 @@ theorem intCast_emod_self (hl : 0 < l) (x : ℤ) :
 /-- `x ∈ [0, l)` equals `val` of its cast to `ZMod l`. -/
 theorem val_intCast_of_mem_Ico (hl : 0 < l) {x : ℤ} (hx0 : 0 ≤ x) (hxl : x < l) :
     (((x : ℤ) : ZMod l.toNat).val : ℤ) = x := by
-  have hlN : NeZero l.toNat := by
+  haveI hlN : NeZero l.toNat := by
     have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
     exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
   have hv := ZMod.val_intCast (n := l.toNat) x
@@ -84,7 +84,7 @@ theorem modTranslate_subset_valImage (hl : 0 < l)
         (fun x : ZMod l.toNat => (x.val : ℤ)) := by
   intro x hx
   obtain ⟨hh, hhHint, rfl⟩ := mem_modTranslate.1 hx
-  have hhH := cast_mem_zkStab_of_mem_hintRes hhHint
+  have hhH := cast_mem_zkStab_of_mem_hintRes hl hhHint
   have hxD : ((b : ℤ) : ZMod l.toNat) + ((hh : ℤ) : ZMod l.toNat) ∈
       zkB l A₀ + (zkS l A₀).addStab :=
     Finset.mem_add.2 ⟨_, hbB, _, hhH, rfl⟩
@@ -139,8 +139,9 @@ theorem zk_exists_unoccupied_diff_coset
     intro x hx
     exact Finset.mem_add.2 ⟨0, h0B, x, hx, zero_add x⟩
   have hDeq : zkB l A₀ + (zkS l A₀).addStab = (zkS l A₀).addStab := by
-    apply Finset.eq_of_subset_of_card_le hHD
-    rw [htB, ht1', mul_one]
+    have hle : (zkB l A₀ + (zkS l A₀).addStab).card ≤ (zkS l A₀).addStab.card :=
+      le_of_eq (by rw [htB, ht1', mul_one])
+    exact (Finset.eq_of_subset_of_card_le hHD hle).symm
   have hBH : zkB l A₀ ⊆ (zkS l A₀).addStab := by
     intro x hx
     rw [← hDeq]
@@ -158,6 +159,9 @@ single unoccupied difference coset, the free fibres plus the charge give
 theorem zkTightCount : ZKTightCount := by
   classical
   intro l A₀ hl h0 hmem h2 hgen hstab hlt htight
+  haveI : NeZero l.toNat := by
+    have hcastl : (l.toNat : ℤ) = l := Int.toNat_of_nonneg (le_of_lt hl)
+    exact ⟨fun h => by rw [h, Nat.cast_zero] at hcastl; omega⟩
   -- Standard nonempties and numerics.
   have h0B : (0 : ZMod l.toNat) ∈ zkB l A₀ := Finset.mem_image.2 ⟨0, h0, by simp⟩
   have h0S : (0 : ZMod l.toNat) ∈ zkS l A₀ :=
@@ -180,7 +184,7 @@ theorem zkTightCount : ZKTightCount := by
   -- `(b − c) % l ∉ hintRes`: else `↑(b − c) ∈ H ⊆ B + H`.
   have hbc' : (b - c) % l ∉ hintRes l A₀ := by
     intro hx
-    have h1 := cast_mem_zkStab_of_mem_hintRes hx
+    have h1 := cast_mem_zkStab_of_mem_hintRes hl hx
     rw [intCast_emod_self hl] at h1
     exact hbc (Finset.mem_add.2 ⟨0, h0B, _, h1, zero_add _⟩)
   -- The charge lemma on the integer lift.
@@ -196,7 +200,7 @@ theorem zkTightCount : ZKTightCount := by
     intro x hxe hxch
     obtain ⟨hxK, -⟩ := Finset.mem_inter.1 (Finset.mem_inter.1 hxch).1
     obtain ⟨hh, hhHint, hxx⟩ := mem_modTranslate.1 hxK
-    have hhH := cast_mem_zkStab_of_mem_hintRes hhHint
+    have hhH := cast_mem_zkStab_of_mem_hintRes hl hhHint
     have hxA : x ∈ A₀ := (Finset.mem_erase.1 hxe).2
     rw [← hxx] at hxA
     have hxc : ((((b - c) % l + hh) % l : ℤ) : ZMod l.toNat) ∈ zkB l A₀ :=
@@ -224,7 +228,7 @@ theorem zkTightCount : ZKTightCount := by
       (fun x : ZMod l.toNat => (x.val : ℤ))).card : ℤ) =
       ((zkB l A₀ + (zkS l A₀).addStab).card : ℤ) := by
     rw [Finset.card_image_of_injective _
-      (fun a b h => ZMod.val_injective _ h)]
+      (fun a b h => ZMod.val_injective _ (Int.natCast_inj.mp h))]
   have hbB : ((b : ℤ) : ZMod l.toNat) ∈ zkB l A₀ :=
     Finset.mem_image.2 ⟨b, hbA, rfl⟩
   have hcB : ((c : ℤ) : ZMod l.toNat) ∈ zkB l A₀ :=
@@ -250,7 +254,7 @@ theorem zkTightCount : ZKTightCount := by
   -- disjointness step).
   have hRR : modTranslate l b (hintRes l A₀) ∩ modTranslate l c (hintRes l A₀)
       = ∅ := by
-    apply Finset.eq_empty_iff_forall_not_mem.2
+    apply Finset.eq_empty_iff_forall_notMem.2
     intro z hz
     obtain ⟨hzR, hzS⟩ := Finset.mem_inter.1 hz
     obtain ⟨h₁, hh₁, he₁⟩ := mem_modTranslate.1 hzR
@@ -310,7 +314,7 @@ theorem zkTightCount : ZKTightCount := by
         (fun x : ZMod l.toNat => (x.val : ℤ))) \ A₀).card =
         ((zkB l A₀ + (zkS l A₀).addStab).image
           (fun x : ZMod l.toNat => (x.val : ℤ))).card - A₀.card :=
-      Finset.card_sdiff hA0sub
+      Finset.card_sdiff_of_subset hA0sub
     have hAle : A₀.card ≤ ((zkB l A₀ + (zkS l A₀).addStab).image
         (fun x : ZMod l.toNat => (x.val : ℤ))).card :=
       Finset.card_le_card hA0sub
@@ -320,45 +324,25 @@ theorem zkTightCount : ZKTightCount := by
   have hRb : ((modTranslate l b (hintRes l A₀) \ A₀).card : ℤ) =
       ((zkS l A₀).addStab.card : ℤ) -
         ((A₀ ∩ modTranslate l b (hintRes l A₀)).card : ℤ) := by
-    have hAR : A₀ ∩ modTranslate l b (hintRes l A₀) ⊆
-        modTranslate l b (hintRes l A₀) := Finset.inter_subset_right
-    have heq : modTranslate l b (hintRes l A₀) \ A₀ =
-        modTranslate l b (hintRes l A₀) \ (A₀ ∩ modTranslate l b (hintRes l A₀)) := by
-      ext x
-      simp only [Finset.mem_sdiff, Finset.mem_inter]
-      tauto
-    have hsdiff : (modTranslate l b (hintRes l A₀) \ A₀).card =
-        (modTranslate l b (hintRes l A₀)).card -
-          (A₀ ∩ modTranslate l b (hintRes l A₀)).card := by
-      rw [heq]
-      exact Finset.card_sdiff hAR
     have hcardR : (modTranslate l b (hintRes l A₀)).card =
         (hintRes l A₀).card := card_modTranslate hl (hintRes_bounds hl)
     have hle : (A₀ ∩ modTranslate l b (hintRes l A₀)).card ≤
-        (modTranslate l b (hintRes l A₀)).card := Finset.card_le_card hAR
-    rw [hsdiff, hcardR, hintRes_card]
-    omega
+        (zkS l A₀).addStab.card := by
+      have h1 := Finset.card_le_card (Finset.inter_subset_right :
+        A₀ ∩ modTranslate l b (hintRes l A₀) ⊆ modTranslate l b (hintRes l A₀))
+      rwa [hcardR, hintRes_card hl] at h1
+    rw [Finset.card_sdiff, hcardR, hintRes_card hl, Nat.cast_sub hle]
   have hRc : ((modTranslate l c (hintRes l A₀) \ A₀).card : ℤ) =
       ((zkS l A₀).addStab.card : ℤ) -
         ((A₀ ∩ modTranslate l c (hintRes l A₀)).card : ℤ) := by
-    have hAR : A₀ ∩ modTranslate l c (hintRes l A₀) ⊆
-        modTranslate l c (hintRes l A₀) := Finset.inter_subset_right
-    have heq : modTranslate l c (hintRes l A₀) \ A₀ =
-        modTranslate l c (hintRes l A₀) \ (A₀ ∩ modTranslate l c (hintRes l A₀)) := by
-      ext x
-      simp only [Finset.mem_sdiff, Finset.mem_inter]
-      tauto
-    have hsdiff : (modTranslate l c (hintRes l A₀) \ A₀).card =
-        (modTranslate l c (hintRes l A₀)).card -
-          (A₀ ∩ modTranslate l c (hintRes l A₀)).card := by
-      rw [heq]
-      exact Finset.card_sdiff hAR
     have hcardR : (modTranslate l c (hintRes l A₀)).card =
         (hintRes l A₀).card := card_modTranslate hl (hintRes_bounds hl)
     have hle : (A₀ ∩ modTranslate l c (hintRes l A₀)).card ≤
-        (modTranslate l c (hintRes l A₀)).card := Finset.card_le_card hAR
-    rw [hsdiff, hcardR, hintRes_card]
-    omega
+        (zkS l A₀).addStab.card := by
+      have h1 := Finset.card_le_card (Finset.inter_subset_right :
+        A₀ ∩ modTranslate l c (hintRes l A₀) ⊆ modTranslate l c (hintRes l A₀))
+      rwa [hcardR, hintRes_card hl] at h1
+    rw [Finset.card_sdiff, hcardR, hintRes_card hl, Nat.cast_sub hle]
   have hsSz : ((zkS l A₀).card : ℤ) =
       2 * (((zkS l A₀).addStab.card : ℤ) * (t : ℤ)) -
         ((zkS l A₀).addStab.card : ℤ) := by
@@ -372,7 +356,7 @@ theorem zkTightCount : ZKTightCount := by
       ((zkS l A₀).addStab.card : ℤ) * (t : ℤ) := by
     rw [htB, Nat.cast_mul]
   have hHint : ((hintRes l A₀).card : ℤ) = ((zkS l A₀).addStab.card : ℤ) := by
-    exact_mod_cast hintRes_card
+    exact_mod_cast hintRes_card hl
   have hke : (A₀.card : ℤ) ≤
       ((zkS l A₀).addStab.card : ℤ) * (t : ℤ) := by
     have := hBle

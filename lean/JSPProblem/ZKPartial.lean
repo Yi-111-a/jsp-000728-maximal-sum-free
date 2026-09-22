@@ -151,7 +151,7 @@ theorem zmodKneserBound_of_zkPartial (hres : ZKPartialResidual) :
   have hBle : B.card ≤ (B + H).card := Finset.card_le_card hBH
   have hkneser : 2 * (B + H).card - H.card ≤ S.card := by
     have h := Finset.add_kneser_sub_image₂ B
-    rw [← hSdef, ← hHdef] at h ⊢
+    rw [← hSdef, ← hHdef] at h
     exact h
   obtain ⟨s, hsS⟩ := Finset.card_addStab_dvd_card S
   obtain ⟨t, htB⟩ := Finset.card_addStab_dvd_card_add_addStab B S
@@ -198,13 +198,13 @@ theorem zmodKneserBound_of_zkPartial (hres : ZKPartialResidual) :
       have hT' : (zkS l A₀).card + (zkS l A₀).addStab.card =
           2 * (zkB l A₀ + (zkS l A₀).addStab).card := htight
       have h := hres' hS' hlt' hT'
-      rw [← hPdef] at h ⊢
       exact h
     · -- `s ≥ 2t`: `|S| ≥ 2t·h ≥ 2|B|` and `|T| ≥ |B| − 1`.
       have hs2 : 2 * t ≤ s := by omega
       have hScard : (2 : ℤ) * ((B + H).card : ℤ) ≤ (S.card : ℤ) := by
-        have : (S.card : ℤ) = (H.card : ℤ) * s := by exact_mod_cast hsS
-        have : (2 * (H.card * t) : ℤ) ≤ (H.card * s : ℤ) := by
+        have hSz : (S.card : ℤ) = (H.card : ℤ) * s := by exact_mod_cast hsS
+        have hle : (2 : ℤ) * ((H.card : ℤ) * (t : ℤ)) ≤
+            (H.card : ℤ) * (s : ℤ) := by
           have hs2z : (2 : ℤ) * (t : ℤ) ≤ (s : ℤ) := by exact_mod_cast hs2
           have hHz : (0 : ℤ) ≤ (H.card : ℤ) := by exact_mod_cast hHpos.le
           calc 2 * ((H.card : ℤ) * (t : ℤ))
@@ -213,7 +213,7 @@ theorem zmodKneserBound_of_zkPartial (hres : ZKPartialResidual) :
                 mul_le_mul_of_nonneg_left hs2z hHz
         calc (2 : ℤ) * ((B + H).card : ℤ)
             = 2 * ((H.card : ℤ) * (t : ℤ)) := by rw [htB]; push_cast; ring
-          _ ≤ (S.card : ℤ) := by rw [this]
+          _ ≤ (S.card : ℤ) := by rw [hSz]; exact hle
       have hTB : (B.card : ℤ) - 1 ≤ (T.card : ℤ) := by omega
       have hsum : (3 : ℤ) * ((A₀.card : ℤ) - 1) ≤
           (S.card : ℤ) + (T.card : ℤ) - 1 := by

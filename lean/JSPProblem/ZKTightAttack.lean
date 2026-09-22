@@ -191,36 +191,36 @@ theorem sub_mem_modTranslate {n b c : ℤ} {H : Finset ℤ}
 theorem card_image₂_sub_ge {X Y : Finset ℤ} (hX : X.Nonempty) (hY : Y.Nonempty) :
     (X.card : ℤ) + Y.card - 1 ≤ (X.image₂ (· - ·) Y).card := by
   classical
-  set xmin := X.min' hX
-  set ymax := Y.max' hY
-  have hxmin : xmin ∈ X := X.min'_mem hX
-  have hymax : ymax ∈ Y := Y.max'_mem hY
-  have hsub : X.image (· - ymax) ∪ Y.image (xmin - ·) ⊆
+  set xmax := X.max' hX
+  set ymin := Y.min' hY
+  have hxmax : xmax ∈ X := X.max'_mem hX
+  have hymin : ymin ∈ Y := Y.min'_mem hY
+  have hsub : X.image (· - ymin) ∪ Y.image (xmax - ·) ⊆
       X.image₂ (· - ·) Y := by
     intro z hz
     rcases Finset.mem_union.1 hz with h | h
     · obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 h
-      exact Finset.mem_image₂.2 ⟨x, hx, ymax, hymax, rfl⟩
+      exact Finset.mem_image₂.2 ⟨x, hx, ymin, hymin, rfl⟩
     · obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 h
-      exact Finset.mem_image₂.2 ⟨xmin, hxmin, y, hy, rfl⟩
-  have hcard1 : (X.image (· - ymax)).card = X.card :=
+      exact Finset.mem_image₂.2 ⟨xmax, hxmax, y, hy, rfl⟩
+  have hcard1 : (X.image (· - ymin)).card = X.card :=
     Finset.card_image_of_injective _ (fun a b h => by omega)
-  have hcard2 : (Y.image (xmin - ·)).card = Y.card :=
+  have hcard2 : (Y.image (xmax - ·)).card = Y.card :=
     Finset.card_image_of_injective _ (fun a b h => by omega)
-  have hinter : X.image (· - ymax) ∩ Y.image (xmin - ·) ⊆ {xmin - ymax} := by
+  have hinter : X.image (· - ymin) ∩ Y.image (xmax - ·) ⊆ {xmax - ymin} := by
     intro z hz
     obtain ⟨h1, h2⟩ := Finset.mem_inter.1 hz
     obtain ⟨x, hx, hzx⟩ := Finset.mem_image.1 h1
     obtain ⟨y, hy, hzy⟩ := Finset.mem_image.1 h2
-    have hxge := X.min'_le x hx
-    have hyle := Y.le_max' y hy
-    have hzz : z = xmin - ymax := by omega
+    have hxle := X.le_max' x hx
+    have hyge := Y.min'_le y hy
+    have hzz : z = xmax - ymin := by omega
     exact Finset.mem_singleton.2 hzz
   have hcardle := Finset.card_le_card hsub
-  have hcap : (X.image (· - ymax) ∩ Y.image (xmin - ·)).card ≤ 1 :=
+  have hcap : (X.image (· - ymin) ∩ Y.image (xmax - ·)).card ≤ 1 :=
     (Finset.card_le_card hinter).trans (by simp)
   have hunion := Finset.card_union_add_card_inter
-    (X.image (· - ymax)) (Y.image (xmin - ·))
+    (X.image (· - ymin)) (Y.image (xmax - ·))
   omega
 
 /-! ### The charge lemma -/
@@ -264,7 +264,7 @@ theorem zk_cosDiff_charge {n : ℤ} (hn : 0 < n)
   have hYne : Y.Nonempty := ⟨c, Finset.mem_inter.2 ⟨hcA, hcS⟩⟩
   -- Distinct cosets: `R ∩ S = ∅`.
   have hRS : R ∩ S = ∅ := by
-    apply Finset.eq_empty_iff_forall_not_mem.2
+    apply Finset.eq_empty_iff_forall_notMem.2
     intro z hz
     obtain ⟨hzR, hzS⟩ := Finset.mem_inter.1 hz
     obtain ⟨h₁, hh₁, he₁⟩ := mem_modTranslate.1 hzR
@@ -293,7 +293,7 @@ theorem zk_cosDiff_charge {n : ℤ} (hn : 0 < n)
     have hsub : X ∩ Y ⊆ R ∩ S := Finset.inter_subset_inter
       Finset.inter_subset_right Finset.inter_subset_right
     rw [hRS] at hsub
-    exact Finset.eq_empty_of_subset_empty hsub
+    exact Finset.subset_empty.1 hsub
   have h0D : (0 : ℤ) ∉ D := by
     intro hd
     obtain ⟨x, hx, y, hy, hxy⟩ := Finset.mem_image₂.1 hd
@@ -409,7 +409,9 @@ theorem zk_cosDiff_charge {n : ℤ} (hn : 0 < n)
         by_cases hzA : z ∈ A
         · exact Or.inl ⟨hzA, hzR⟩
         · exact Or.inr ⟨hzR, hzA⟩
-    rw [← hunion, Finset.card_union_of_disjoint hdisj]
+    calc X.card + (R \ A).card = (X ∪ (R \ A)).card :=
+          (Finset.card_union_of_disjoint hdisj).symm
+      _ = R.card := by rw [hunion]
   have hYcard : Y.card + (S \ A).card = S.card := by
     have hdisj : Disjoint Y (S \ A) := by
       rw [Finset.disjoint_left]
@@ -426,7 +428,9 @@ theorem zk_cosDiff_charge {n : ℤ} (hn : 0 < n)
         by_cases hzA : z ∈ A
         · exact Or.inl ⟨hzA, hzS⟩
         · exact Or.inr ⟨hzS, hzA⟩
-    rw [← hunion, Finset.card_union_of_disjoint hdisj]
+    calc Y.card + (S \ A).card = (Y ∪ (S \ A)).card :=
+          (Finset.card_union_of_disjoint hdisj).symm
+      _ = S.card := by rw [hunion]
   -- Assemble: `|X| + |Y| − 1 ≤ |D| = |D⁺| + |Up| ≤ |K| + |I|`.
   omega
 
@@ -471,7 +475,9 @@ theorem zk_cosDiff_charge_fiber {n : ℤ} (hn : 0 < n)
         by_cases hzA : z ∈ A
         · exact Or.inl ⟨hzA, hzR⟩
         · exact Or.inr ⟨hzR, hzA⟩
-    rw [← hunion, Finset.card_union_of_disjoint hdisj]
+    calc X.card + (R \ A).card = (X ∪ (R \ A)).card :=
+          (Finset.card_union_of_disjoint hdisj).symm
+      _ = R.card := by rw [hunion]
   have hYcard : Y.card + (S \ A).card = S.card := by
     have hdisj : Disjoint Y (S \ A) := by
       rw [Finset.disjoint_left]
@@ -488,7 +494,9 @@ theorem zk_cosDiff_charge_fiber {n : ℤ} (hn : 0 < n)
         by_cases hzA : z ∈ A
         · exact Or.inl ⟨hzA, hzS⟩
         · exact Or.inr ⟨hzS, hzA⟩
-    rw [← hunion, Finset.card_union_of_disjoint hdisj]
+    calc Y.card + (S \ A).card = (Y ∪ (S \ A)).card :=
+          (Finset.card_union_of_disjoint hdisj).symm
+      _ = S.card := by rw [hunion]
   omega
 
 /-- The charged fibres land in the both-direction set `T = P ∩ (l − P)`:

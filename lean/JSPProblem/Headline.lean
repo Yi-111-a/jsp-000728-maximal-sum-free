@@ -2,6 +2,7 @@ import JSPProblem.Prize
 import JSPProblem.ZModRemoval
 import JSPProblem.DFSTBridge
 import JSPProblem.BMSContainer
+import JSPProblem.ZKAssemble
 
 /-!
 # JSP-000728 — the headline layer
@@ -46,5 +47,23 @@ theorem sharpAsymptotic_of_freiman3k4 (hF : Freiman3k4) : SharpAsymptotic :=
 theorem eventualRatioUpper_quarter_of_freiman3k4 (hF : Freiman3k4) :
     EventualRatioUpper (1 / 4) :=
   sharpAsymptotic_iff_eventualRatioUpper.mp (sharpAsymptotic_of_freiman3k4 hF)
+
+/-- **The BLST18 sharp asymptotic, unconditional.**  The number `f(n)` of
+inclusion-maximal sum-free subsets of `{1,…,n}` satisfies
+`log₂ f(n) / n → 1/4`, i.e. `f(n) = 2^{(1/4 + o(1))·n}`.
+
+The remaining hypothesis `Freiman3k4` is discharged by the tight periodic
+fibre count `zkTightCount` (`ZKAssemble.lean`) through the chain
+`ZKTightCount → ZKPartialResidual → PeriodicMarginal → ZModKneserBound →
+Freiman3k4Residual → Freiman3k4`. -/
+theorem maxSumFreeCount_sharp_asymptotic : SharpAsymptotic :=
+  sharpAsymptotic_of_freiman3k4
+    (freiman3k4 (freiman3k4Residual
+      (zmodKneserBound' (zmodKneserBound_of_zkPartial
+        (zkPartialResidual zkTightCount)))))
+
+/-- The same headline in catalog language (`jsp_000728_blst18` alias). -/
+theorem jsp_000728_blst18 : SharpAsymptotic :=
+  maxSumFreeCount_sharp_asymptotic
 
 end JSP000728

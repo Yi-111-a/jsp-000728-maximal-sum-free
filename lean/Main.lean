@@ -612,3 +612,11 @@ with `≤ (n+1)/2` elements, so `sumFreeCount n ≤ f(n)·2^{(n+1)/2}`. -/
 theorem jsp_000728_sumFreeCount_le (n : ℕ) :
     sumFreeCount n ≤ maxSumFreeCount n * 2 ^ ((n + 1) / 2) :=
   sumFreeCount_le_maxSumFreeCount_mul_pow n
+
+/-- **Headline theorem (BLST18, unconditional):** the number `f(n)` of
+inclusion-maximal sum-free subsets of `{1,…,n}` satisfies
+`log₂ f(n) / n → 1/4`, i.e. `f(n) = 2^{(1/4 + o(1))·n}`. -/
+theorem jsp_000728_headline : JSP000728.SharpAsymptotic :=
+  JSP000728.maxSumFreeCount_sharp_asymptotic
+
+#print axioms JSP000728.maxSumFreeCount_sharp_asymptotic

@@ -260,23 +260,21 @@ theorem zkTight_of_union_neg_ge
   -- Cast everything to `ℤ` and close by `omega`.
   have hkn' : ((S.card : ℤ)) ≥ 2 * ((B + H).card : ℤ) - (H.card : ℤ) := by
     have h1 : 2 * (B + H).card - H.card ≤ S.card := hkn
-    have h2 : (H.card : ℤ) ≤ 2 * ((B + H).card : ℤ) := by
-      have : (H.card : ℤ) ≤ ((B + H).card : ℤ) := by
-        have hsub : H ⊆ B + H := by
-          intro c hc
-          obtain ⟨b, hb⟩ := hSne
-          have hsub' : H ⊆ S := by
-            intro c' hc'
-            rw [hHdef, hSdef]
-            rw [hHdef] at hc'
-            have := (Finset.mem_addStab_iff_smul_finset_subset hSne).1 hc'
-            -- `c +ᵥ S ⊆ S` gives `c + b ∈ S` — wait use mem_addStab'
-            exact this hb
-          exact hsub hc
-        exact_mod_cast Finset.card_le_card hsub
-      have hpos : (0 : ℤ) ≤ ((B + H).card : ℤ) := by positivity
-      omega
-    omega
+    have h0B : (0 : ZMod l.toNat) ∈ B :=
+      Finset.mem_image.2 ⟨0, h0, by simp⟩
+    -- `H ⊆ B + H` since `0 ∈ B`.
+    have hsub : H ⊆ B + H := by
+      intro c hc
+      exact Finset.mem_add.2 ⟨0, h0B, c, hc, zero_add c⟩
+    have hleN : H.card ≤ 2 * (B + H).card :=
+      le_trans (Finset.card_le_card hsub) (by omega)
+    have hcast : ((2 * (B + H).card - H.card : ℕ) : ℤ) =
+        2 * ((B + H).card : ℤ) - (H.card : ℤ) := by
+      rw [Nat.cast_sub hleN]
+      push_cast
+      ring
+    rw [← hcast]
+    exact_mod_cast h1
   omega
 
 end ZKTight

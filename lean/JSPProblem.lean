@@ -99,3 +99,4 @@ import JSPProblem.KneserZMod
 import JSPProblem.FreimanResidual
 import JSPProblem.FreimanResidualB
 import JSPProblem.ZKBound2
+import JSPProblem.ZKAssemble
