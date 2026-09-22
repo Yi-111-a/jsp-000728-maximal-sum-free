@@ -88,3 +88,14 @@ import JSPProblem.Freiman3k4
 import JSPProblem.RemovalFull
 import JSPProblem.Prize
 import JSPProblem.BMSContainer
+import JSPProblem.LargeSumFreeClass
+import JSPProblem.ParityStability2
+import JSPProblem.IntervalTypeCount
+import JSPProblem.FiberWalk
+import JSPProblem.ZModRemoval
+import JSPProblem.Headline
+import JSPProblem.RatioThreeEighths
+import JSPProblem.KneserZMod
+import JSPProblem.FreimanResidual
+import JSPProblem.FreimanResidualB
+import JSPProblem.ZKBound2

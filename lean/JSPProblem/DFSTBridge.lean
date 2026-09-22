@@ -711,17 +711,19 @@ theorem dfstMixed_of_freiman3k4 (hF : Freiman3k4) : DFSTMixed := by
           have hxm := hmin x hx
           have hxM := hmax x hx
           rcases le_or_gt x v with h | h
-          · exact Finset.mem_union.2 (Or.inl (Or.inl (Or.inl
-              (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨hxm, h⟩⟩))))
+          · exact Finset.mem_union.2 (Or.inl (Finset.mem_union.2 (Or.inl
+              (Finset.mem_union.2 (Or.inl
+                (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨hxm, h⟩⟩))))))
           · rcases le_or_gt x t with h2 | h2
-            · exact Finset.mem_union.2 (Or.inl (Or.inl (Or.inr
-                (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨by omega, h2⟩⟩))))
+            · exact Finset.mem_union.2 (Or.inl (Finset.mem_union.2 (Or.inl
+                (Finset.mem_union.2 (Or.inr
+                  (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨by omega, h2⟩⟩))))))
             · rcases le_or_gt x (ℓ - 2 * m) with h3 | h3
               · -- `t < x ≤ ℓ − 2m`: then `2m ≤ x ≤ v + m` by `5m ≥ ℓ`.
                 exact Finset.mem_union.2 (Or.inr
                   (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨by omega, by omega⟩⟩))
-              · exact Finset.mem_union.2 (Or.inl (Or.inr
-                  (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨by omega, hxM⟩⟩)))
+              · exact Finset.mem_union.2 (Or.inl (Finset.mem_union.2 (Or.inr
+                  (Finset.mem_inter.2 ⟨hx, Finset.mem_Icc.2 ⟨by omega, hxM⟩⟩))))
         -- Assemble: `k ≤ (v−m+1) + |B| + m`, so `7k ≤ 3ℓ − m + 9`,
         -- i.e. `5k ≤ 2ℓ + 5`, contradicting `5k ≥ 2n + 6 ≥ 2ℓ + 6`.
         have hcardle := Finset.card_le_card hsplit

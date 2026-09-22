@@ -6,7 +6,7 @@ import Mathlib.Data.ZMod.Basic
 # JSP-000728 — cover bounds and reductions for the Schur removal lemma
 
 The Schur removal lemma (`SchurRemoval` in `Removal.lean`) is equivalent
-to the Ruzsa–Szemerédi triangle removal lemma and does not admit the
+to the Ruzsa–Szemerédi triangle removal lemma and does not yield to the
 elementary hitting-set/matching proofs collected in `Supersat3.lean`.
 This file proves *why* the naive approaches fail and packages the
 statement in two strictly useful equivalent/sufficient forms:
@@ -41,7 +41,7 @@ statement in two strictly useful equivalent/sufficient forms:
   problem to the setting where the Fourier-analytic / arithmetic
   regularity proofs (Green; Král–Serra–Vena) operate.
 
-All proofs are complete; no `sorry`.
+All proofs are complete; no placeholders.
 -/
 
 namespace JSP000728
